@@ -10,8 +10,12 @@ SendMessage::SendMessage(string rawMessage) : ServerOperation(rawMessage) {
 
 }
 
-bool SendMessage::parse(string Message) {
+bool SendMessage::parse(string raw_Message) {
+    if(raw_Message != NULL){
 
+
+        return true;
+    }
     return false;
 }
 
