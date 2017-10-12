@@ -9,7 +9,15 @@
 #include "ServerOperation.h"
 
 class SendMessage : public ServerOperation{
+public:
+    SendMessage(string rawMessage);
 
+    bool parse(string Message);
+
+    string execute();
+
+private:
+    string sender, subject, message, receiver;
 };
 
 
