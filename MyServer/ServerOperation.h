@@ -8,20 +8,27 @@
 #include <string.h>
 #include <stdio.h>
 #include <string>
+#include <map>
 
 
 using namespace std;
 
 class ServerOperation {
 
-    ServerOperation();
-
-
 protected:
     string raw_Message;
-    virtual string parse(string Message);
+    map<string, string> parameters;
+
+    //parses the raw Message into the needed parameters, returns false if not successful, true if successful
+    virtual bool parse(string) = 0;
+    //adds a parameter to the parameters Map
+    virtual bool addParameter(string, string);
+    //reads a parameter from the map
+    virtual string getParameter(string);
+
 public:
-    virtual string execute();
+    explicit ServerOperation(string);
+    virtual string execute() = 0;
 };
 
 
