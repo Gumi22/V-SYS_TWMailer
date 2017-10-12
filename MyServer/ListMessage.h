@@ -9,7 +9,13 @@
 #include "ServerOperation.h"
 
 class ListMessage : public ServerOperation{
+public:
+    ListMessage(const string &);
+    virtual string execute();
 
+private:
+    virtual bool parse();
+    string User;
 };
 
 

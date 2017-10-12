@@ -13,21 +13,21 @@
 
 using namespace std;
 
+
+//Class ServerOperation is the base Class for all the Operations this server can execute.
 class ServerOperation {
 
 protected:
     string raw_Message;
-    map<string, string> parameters;
 
     //parses the raw Message into the needed parameters, returns false if not successful, true if successful
-    virtual bool parse(string) = 0;
-    //adds a parameter to the parameters Map
-    virtual bool addParameter(string, string);
-    //reads a parameter from the map
-    virtual string getParameter(string);
+    virtual bool parse() = 0;
 
 public:
-    explicit ServerOperation(string);
+    //Constructor needs raw message (Part after the command name) es parameter
+    explicit ServerOperation(const string &);
+
+    //Executes the operation returns the server response as a string
     virtual string execute() = 0;
 };
 
