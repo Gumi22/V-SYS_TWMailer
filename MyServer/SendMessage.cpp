@@ -13,24 +13,32 @@ SendMessage::SendMessage() : ServerOperation() {
 
 string SendMessage::execute() {
 
-    return std::__cxx11::string();
 }
 
 bool SendMessage::fillMe(string message) {
     if(message != "."){
         switch(index){
             case 1:
-                sender = message;
-                index ++;
-                return true;
+                if(message.length() <= 8){
+                    sender = message;
+                    index ++;
+                    return true;
+                }
+                return false;
             case 2:
-                receiver = message;
-                index ++;
-                return true;
+                if(message.length() <= 8){
+                    receiver = message;
+                    index ++;
+                    return true;
+                }
+                return false;
             case 3:
-                subject = message;
-                index ++;
-                return true;
+                if(message.length() <= 80){
+                    subject = message;
+                    index ++;
+                    return true;
+                }
+                return false;
             default:
                 message_final += message;
                 return true;
