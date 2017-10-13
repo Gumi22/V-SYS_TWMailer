@@ -47,7 +47,8 @@ bool SendMessage::fillMe(string message) {
                 return true;
         }
     }
-    if(index < 4 && message == "."){
+    if(index == 4 && message == "."){
+        statusMessage = "OK";
         return false;
     }else{
         statusMessage = "Invalid Input - Operation cancelled!";
