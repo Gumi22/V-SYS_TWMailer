@@ -18,7 +18,9 @@
 int main (void) {
 
 
-    ListMessage lm("/home/osboxes/Desktop/test/\n");
+    ListMessage lm;
+    lm.fillMe("/home/osboxes/Desktop/test/\n");
+
     string test = lm.execute();
 
     cout << test;

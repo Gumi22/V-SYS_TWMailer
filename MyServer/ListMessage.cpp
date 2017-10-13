@@ -10,24 +10,22 @@
 
 
 
-ListMessage::ListMessage(const string & Message) :ServerOperation(Message) {
-    //ToDo: -> Read needed parameters and save them, Message is eventually obsolete.
-    parse();
+ListMessage::ListMessage() :ServerOperation() {
 }
 
-bool ListMessage::parse() {
-    //get username from raw string
-    unsigned long end = raw_Message.find('\n');
+//returns false either way, because first line after LIST command has to be the username
+bool ListMessage::fillMe(string line) {
+
+    unsigned long end = line.find('\n');
 
     if(end == string::npos || end == 0 || end > 8){
         //no \n found, or no user given (\n is first character), or username to long
-        return false;
+        return false; //eventually return true if we want to give the sender another chance of not being a total dick and sending bullshit.
     }
 
     //ignore \n if found:
-    User = raw_Message.substr(0, end);
-
-    return true;
+    User = line.substr(0, end);
+    return false;
 }
 
 
