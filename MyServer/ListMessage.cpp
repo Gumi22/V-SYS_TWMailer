@@ -37,19 +37,18 @@ string ListMessage::execute() {
     int count = 0;
     string subjects = "";
 
-    //for testing
-    //ToDo-> make dir finder better and remove this hardcoded shit
-    User = "/home/osboxes/Desktop/test/";
-
     DIR* userDir = opendir(User.c_str()); //Open User Directory
 
     struct dirent * userDirEntry; //individual entries in the directory.
     ifstream messagefile;
     string line;
 
+    //if no directory found return 0
+    if(userDir == nullptr){
+        return "0\n";
+    }
 
-
-    //while folder isn't empty or didn't reach end keep looking:
+    //while directory isn't empty or didn't reach end keep looking:
     while((userDirEntry = readdir(userDir)) != nullptr){
         //only read regular files
         if(userDirEntry->d_type == DT_REG){
