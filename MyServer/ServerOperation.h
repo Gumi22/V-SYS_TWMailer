@@ -19,6 +19,7 @@ class ServerOperation {
 
 protected:
     string raw_Message;
+    string statusMessage;
 
 
 public:
@@ -28,6 +29,8 @@ public:
     //fillMe fills internal arguments of operation with a string.
     //returns true id next line needs to be read and filled and false if Operation got all needed arguments or failed.
     virtual bool fillMe(string) = 0;
+
+    string getStaus();
 
     //Executes the operation returns the server response as a string
     virtual string execute() = 0;
