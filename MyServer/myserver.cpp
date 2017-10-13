@@ -17,14 +17,28 @@
 
 int main (void) {
 
+    /*
+    SendMessage sm;
+    sm.fillMe("if16b063\n");
+    sm.fillMe("if23v054\n");
+    sm.fillMe("das ist der betreff\n");
+    sm.fillMe("Das ist die nachricht\n");
+    sm.fillMe("Was machst du heute nocht?\n");
+    sm.fillMe(".");
 
+
+    cout << sm.getStaus() << std::endl;
+
+    */
+
+    /*
     ListMessage lm;
     lm.fillMe("/home/osboxes/Desktop/test/\n");
 
     string test = lm.execute();
 
     cout << test;
-
+    */
 
   int create_socket, new_socket;
   socklen_t addrlen;

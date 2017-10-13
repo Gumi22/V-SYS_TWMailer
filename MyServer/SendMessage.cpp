@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <queue>
 #include <string>
+#include <iostream>
 #include "SendMessage.h"
 
 SendMessage::SendMessage() : ServerOperation() {
@@ -19,7 +20,7 @@ bool SendMessage::fillMe(string message) {
     if(message != "."){
         switch(index){
             case 1:
-                if(message.length() <= 8){
+                if(message.length() <= 9){
                     sender = message;
                     index ++;
                     return true;
@@ -27,7 +28,7 @@ bool SendMessage::fillMe(string message) {
                 statusMessage = "Invalid Sender - Max 8 Characters!";
                 return false;
             case 2:
-                if(message.length() <= 8){
+                if(message.length() <= 9){
                     receiver = message;
                     index ++;
                     return true;
@@ -35,7 +36,7 @@ bool SendMessage::fillMe(string message) {
                 statusMessage = "Invalid Receiver - Max 8 Characters";
                 return false;
             case 3:
-                if(message.length() <= 80){
+                if(message.length() <= 81){
                     subject = message;
                     index ++;
                     return true;
@@ -49,6 +50,7 @@ bool SendMessage::fillMe(string message) {
     }
     if(index == 4 && message == "."){
         statusMessage = "OK";
+        std::cout << message_final << std::endl;
         return false;
     }else{
         statusMessage = "Invalid Input - Operation cancelled!";
