@@ -13,11 +13,11 @@ SendMessage::SendMessage() : ServerOperation() {
 }
 
 string SendMessage::execute() {
-
+    return "NICE TRY :D";
 }
 
 bool SendMessage::fillMe(string message) {
-    if(message != "."){
+    if(message != ".\n"){
         switch(index){
             case 1:
                 if(message.length() <= 9){
@@ -48,7 +48,7 @@ bool SendMessage::fillMe(string message) {
                 return true;
         }
     }
-    if(index == 4 && message == "."){
+    if(index == 4 && message == ".\n"){
         statusMessage = "OK";
         std::cout << message_final << std::endl;
         return false;

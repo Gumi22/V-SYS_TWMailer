@@ -18,6 +18,8 @@
 
 int main (void) {
 
+    ServerOperation* command; //command the server executes
+
     /*
     SendMessage sm;
     sm.fillMe("if16b063\n");
@@ -79,15 +81,64 @@ int main (void) {
            buffer[size] = '\0';
            printf ("Message received: %s\n", buffer);
 
-            ListMessage lm;
+            //parse received command and create the received command
+            if(strncasecmp (buffer, "send", 4)  == 0){
+                command = new SendMessage();
+            }
+            else if(strncasecmp (buffer, "list", 4)  == 0){
+                command = new ListMessage();
+            }
+            else if(strncasecmp (buffer, "read", 4)  == 0){
+                //ToDo: Add read command when ready
+            }
+            else if(strncasecmp (buffer, "del", 3)  == 0){
+                //ToDo: Add del command when ready
+            }
+            else if(strncasecmp (buffer, "quit", 4)  == 0){
+                //quit
+            }
+            else{
+                //No commands matched
+                char message[] = "No matching command found\n";
+                send(new_socket, message, strlen(message),0);
+                break;
+            }
 
+            //if command was matched - get all the parameters
             do{
-                cout << lm.getStaus();
-            }while(lm.fillMe(buffer));
-            cout << lm.getStaus();
-            string test = lm.execute();
+                //always send the client confirmation
+                //ToDo: remove this later, its just for debugging purposes
+                string confirmation = command->getStaus();
+                send(new_socket, confirmation.c_str(), confirmation.length(),0);
 
-            cout << test;
+                //ToDo: remove this next line, its for debugging purposes
+                cout << command->getStaus();
+
+                //receive next line
+                size = recv (new_socket, buffer, BUF-1, 0);
+                if( size > 0)
+                {
+                    buffer[size] = '\0';
+                    printf ("Message received: %s\n", buffer);
+                }
+                else if (size == 0)
+                {
+                    printf("Client closed remote socket\n");
+                    break;
+                }
+                else
+                {
+                    perror("recv error");
+                    return EXIT_FAILURE;
+                }
+            }while(command->fillMe(buffer)); //Fill Command with parameters till its satisfied
+            cout << command->getStaus();
+            string result = command->execute(); //finally execute command
+
+            //send the result to the client:
+            send(new_socket, result.c_str(), result.length(),0);
+
+            cout << result; //ToDo: remove this line later;
 
         }
         else if (size == 0)

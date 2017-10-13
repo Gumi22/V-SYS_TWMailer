@@ -14,7 +14,7 @@ int main (int argc, char **argv) {
   int create_socket;
   char buffer[BUF];
   struct sockaddr_in address;
-  int size;
+  long size;
 
   if( argc < 2 ){
      printf("Usage: %s ServerAdresse\n", argv[0]);
@@ -52,6 +52,13 @@ int main (int argc, char **argv) {
      printf ("Send message: ");
      fgets (buffer, BUF, stdin);
      send(create_socket, buffer, strlen (buffer), 0);
+      //expect a response;
+      size=recv(create_socket,buffer,BUF-1, 0);
+      if (size>0)
+      {
+          buffer[size]= '\0';
+          printf("%s",buffer);
+      }
   } 
   while (strcmp (buffer, "quit\n") != 0);
   close (create_socket);
