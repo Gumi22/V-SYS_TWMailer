@@ -13,9 +13,9 @@ class SendMessage : public ServerOperation{
 public:
     explicit SendMessage(string rawMessage);
 
-    bool parse(string Message) override ;
+    virtual bool parse(string Message);
 
-    string execute() override;
+    virtual string execute();
 
 private:
     string sender, subject, message, receiver;

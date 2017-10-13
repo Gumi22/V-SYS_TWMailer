@@ -10,15 +10,11 @@ SendMessage::SendMessage(string rawMessage) : ServerOperation(rawMessage) {
 
 }
 
-bool SendMessage::parse(string raw_Message) {
-    if(raw_Message != NULL){
-
-
-        return true;
-    }
+bool SendMessage::parse(string Message) {
     return false;
 }
 
 string SendMessage::execute() {
     return std::__cxx11::string();
 }
+
