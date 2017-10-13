@@ -24,6 +24,7 @@ bool SendMessage::fillMe(string message) {
                     index ++;
                     return true;
                 }
+                statusMessage = "Invalid Sender - Max 8 Characters!";
                 return false;
             case 2:
                 if(message.length() <= 8){
@@ -31,6 +32,7 @@ bool SendMessage::fillMe(string message) {
                     index ++;
                     return true;
                 }
+                statusMessage = "Invalid Receiver - Max 8 Characters";
                 return false;
             case 3:
                 if(message.length() <= 80){
@@ -38,12 +40,18 @@ bool SendMessage::fillMe(string message) {
                     index ++;
                     return true;
                 }
+                statusMessage = "Invalid Subject - Max 80 Characters!";
                 return false;
             default:
                 message_final += message;
                 return true;
         }
     }
-    return false;
+    if(index < 4 && message == "."){
+        return false;
+    }else{
+        statusMessage = "Invalid Input - Operation cancelled!";
+        return false;
+    }
 }
 
