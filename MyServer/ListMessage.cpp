@@ -18,14 +18,17 @@ bool ListMessage::fillMe(string line) {
 
     unsigned long end = line.find('\n');
 
-    if(end == string::npos || end == 0 || end > 8){
+    if(end == string::npos || end == 0 || end > 9){
         //no \n found, or no user given (\n is first character), or username to long
+        statusMessage = "User expected\n";
         return false; //eventually return true if we want to give the sender another chance of not being a total dick and sending bullshit.
     }
-
-    //ignore \n if found:
-    User = line.substr(0, end);
-    return false;
+    else{
+        //ignore \n if found:
+        User = line.substr(0, end);
+        statusMessage = "OK\n";
+        return false;
+    }
 }
 
 
@@ -33,7 +36,6 @@ bool ListMessage::fillMe(string line) {
 string ListMessage::execute() {
     string result = "", subjects = "";
     int count = 0;
-
     DIR* userDir = opendir(User.c_str()); //Open User Directory
 
     struct dirent * userDirEntry; //individual entries in the directory.
@@ -50,8 +52,7 @@ string ListMessage::execute() {
         //only read regular files
         if(userDirEntry->d_type == DT_REG){
             //ToDo: look if filename ends with .msg or .txt
-            string test = User + userDirEntry  ->d_name;
-            messageFile.open(User + userDirEntry->d_name);
+            messageFile.open(User + "/" + userDirEntry->d_name);
             if(messageFile.is_open()){
                 //reading if open
                 getline(messageFile, line); //get First line->should be sender... ignore this part for now, maybe add to list later

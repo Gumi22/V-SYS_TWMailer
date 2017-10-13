@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
+#include <sstream>
 #include "ListMessage.h"
 #include "ReadMessage.h"
 #include "SendMessage.h"
@@ -35,6 +36,7 @@ int main (void) {
     ListMessage lm;
     lm.fillMe("/home/osboxes/Desktop/test/\n");
 
+
     string test = lm.execute();
 
     cout << test;
@@ -43,7 +45,7 @@ int main (void) {
   int create_socket, new_socket;
   socklen_t addrlen;
   char buffer[BUF];
-  int size;
+  long size;
   struct sockaddr_in address, cliaddress;
 
   create_socket = socket (AF_INET, SOCK_STREAM, 0);
@@ -61,7 +63,7 @@ int main (void) {
   
   addrlen = sizeof (struct sockaddr_in);
 
-  while (1) {
+  while (true) {
      printf("Waiting for connections...\n");
      new_socket = accept ( create_socket, (struct sockaddr *) &cliaddress, &addrlen );
      if (new_socket > 0)
@@ -76,6 +78,17 @@ int main (void) {
         {
            buffer[size] = '\0';
            printf ("Message received: %s\n", buffer);
+
+            ListMessage lm;
+
+            do{
+                cout << lm.getStaus();
+            }while(lm.fillMe(buffer));
+            cout << lm.getStaus();
+            string test = lm.execute();
+
+            cout << test;
+
         }
         else if (size == 0)
         {

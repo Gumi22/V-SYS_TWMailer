@@ -6,7 +6,7 @@
 
 ServerOperation::ServerOperation() {
     //nothing has to be done
-    statusMessage = "expecting parameter.";
+    statusMessage = "expecting parameter.\n";
 }
 
 string ServerOperation::getStaus() {return statusMessage;}
