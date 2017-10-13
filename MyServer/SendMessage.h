@@ -11,14 +11,15 @@
 class SendMessage : public ServerOperation{
 
 public:
-    explicit SendMessage(string rawMessage);
+    explicit SendMessage();
 
-    virtual bool parse(string Message);
+    virtual bool fillMe(string Message);
 
     virtual string execute();
 
 private:
-    string sender, subject, message, receiver;
+    string sender, subject, message_final, receiver;
+    int index = 1;
 };
 
 
