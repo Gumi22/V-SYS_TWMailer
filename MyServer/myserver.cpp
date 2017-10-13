@@ -7,10 +7,23 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
+#include "ListMessage.h"
+#include "ReadMessage.h"
+#include "SendMessage.h"
+
 #define BUF 1024
 #define PORT 6543
 
 int main (void) {
+
+
+    ListMessage lm("lololol");
+    string test = lm.execute();
+
+    cout << test;
+
+
   int create_socket, new_socket;
   socklen_t addrlen;
   char buffer[BUF];
