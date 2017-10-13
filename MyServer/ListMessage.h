@@ -11,7 +11,9 @@
 class ListMessage : public ServerOperation{
 public:
     //Constructor
-    ListMessage(const string &);
+    ListMessage();
+
+    virtual bool fillMe(string);
 
     //Searches for messages in specified Folder and lists them:
     //  <Number of Messages for specified User ?(0 if none were found)> \n
@@ -23,7 +25,6 @@ public:
 
 private:
     //Parses the input parameters
-    virtual bool parse();
     string User;
 };
 
