@@ -21,12 +21,15 @@ bool SendMessage::fillMe(string message) {
         switch(index){
             case 1:
                 sender = message;
+                index ++;
                 return true;
             case 2:
                 receiver = message;
+                index ++;
                 return true;
             case 3:
                 subject = message;
+                index ++;
                 return true;
             default:
                 message_final += message;
