@@ -4,7 +4,7 @@
 
 #include "ServerOperation.h"
 
-ServerOperation::ServerOperation(const string & Message) {
-    raw_Message = Message; //Assign message
+ServerOperation::ServerOperation() {
+    //nothing has to be done
 }
 
