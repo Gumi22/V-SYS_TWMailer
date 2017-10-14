@@ -39,7 +39,7 @@ int main (int argc, char **argv) {
      if (size>0)
      {
         buffer[size]= '\0';
-        printf("%s",buffer);
+        //printf("%s",buffer);
      }
   }
   else
@@ -49,7 +49,8 @@ int main (int argc, char **argv) {
   }
 
   do {
-     printf ("Send message: ");
+
+     printf ("Send message: %s ", buffer);
      fgets (buffer, BUF, stdin);
      send(create_socket, buffer, strlen (buffer), 0);
       //expect a response;
@@ -57,7 +58,7 @@ int main (int argc, char **argv) {
       if (size>0)
       {
           buffer[size]= '\0';
-          printf("%s",buffer);
+          //printf("%s",buffer);
       }
   } 
   while (strcmp (buffer, "quit\n") != 0);

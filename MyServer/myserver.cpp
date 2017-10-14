@@ -131,6 +131,7 @@ int main(void) {
                 send(new_socket, result.c_str(), result.length(), 0);
 
                 cout << result; //ToDo: remove this line later;
+                cout << command->getStatus(); //ToDo: remove this line later;
 
             } else if (size == 0) {
                 printf("Client closed remote socket\n");

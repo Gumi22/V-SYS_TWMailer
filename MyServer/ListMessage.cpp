@@ -10,6 +10,7 @@
 
 
 ListMessage::ListMessage() :ServerOperation() {
+    statusMessage = "User:";
 }
 
 //returns false either way, because first line after LIST command has to be the username
@@ -19,7 +20,7 @@ bool ListMessage::fillMe(string line) {
 
     if(end == string::npos || end == 0 || end > 9){
         //no \n found, or no user given (\n is first character), or username to long
-        statusMessage = "User expected\n";
+        statusMessage = "User:\n";
         return false; //eventually return true if we want to give the sender another chance of not being a total dick and sending bullshit.
     }
     else{
@@ -61,9 +62,10 @@ string ListMessage::execute() {
                 //close file again
                 messageFile.close();
                 //update results
+                count ++;
+                subjects.append(to_string(count) + "...");
                 subjects.append(line);
                 subjects.append("\n");
-                count ++;
             }
         }
     }

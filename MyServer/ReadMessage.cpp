@@ -9,6 +9,7 @@
 ReadMessage::ReadMessage() {
     ParameterCount = 0;
     MessageNumber = 0; //give invalid message number at beginning
+    statusMessage = "User:";
 }
 
 
@@ -17,8 +18,9 @@ bool ReadMessage::fillMe(string parameter) {
     if(ParameterCount == 0){
         if(parameter.length() <= 9 && parameter.length() > 1){ //is the Username given 1-8 chars long?
             User = parameter;
+            User.pop_back();
             ParameterCount ++;
-            statusMessage = "Message-number expected";
+            statusMessage = "Message-number:";
         }
         else{
             statusMessage = "Invalid User - Max 8 Characters!";
@@ -43,7 +45,7 @@ bool ReadMessage::fillMe(string parameter) {
 
 string ReadMessage::execute() {
     string result = "";
-    int count = 0;
+    int count = 1;
     string dir = MESSAGEDIR + "/" + User;
 
     DIR* userDir = opendir(dir.c_str()); //Open User Directory
@@ -55,11 +57,11 @@ string ReadMessage::execute() {
     //if no directory found return 0
     if(userDir == nullptr){
         statusMessage = "No such User \"" + User + "\" found\n";
-        return "ERR\n";
+        return "ERR1\n";
     }
 
     //while directory isn't empty or didn't reach end keep looking until number is reached:
-    while((userDirEntry = readdir(userDir)) != nullptr){
+    while((userDirEntry = readdir(userDir)) != nullptr && count < MessageNumber){
         count ++;
     }
 
@@ -69,20 +71,22 @@ string ReadMessage::execute() {
         messageFile.open(dir + "/" + userDirEntry->d_name);
         if(messageFile.is_open()){
             //reading if open
-            getline(messageFile, line); //get First line->should be sender... ignore this part for now, maybe add to list later
-            getline(messageFile, line); //get second line->should be subject
-            //close file again
-            messageFile.close();
-            //update results
-            result.append(line);
-            result.append("\n");
-            count ++;
+            while(!messageFile.eof()){
+                //read till the end and save lines to the result:
+                getline(messageFile, line);
+                result.append(line);
+                result.append("\n");
+            }
+        }
+        else{
+            statusMessage = "Could not open Message file.";
+            return "ERR2\n";
         }
     }
-
-    result.append(to_string(count));
-    result.append("\n");
-    //result.append(subjects);
+    else{
+        statusMessage = "Specified file is not a Message file.";
+        return "ERR3\n";
+    }
 
     statusMessage = "OK\n";
 
