@@ -51,7 +51,7 @@ string ListMessage::execute() {
     while((userDirEntry = readdir(userDir)) != nullptr){
         //only read regular files
         if(userDirEntry->d_type == DT_REG){
-            //ToDo: look if filename ends with .msg or .txt
+            //ToDo: look if filename ends with .msg or .txt -> Info: it's a .txt file!!
             messageFile.open(User + "/" + userDirEntry->d_name);
             if(messageFile.is_open()){
                 //reading if open

@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
-#include <sstream>
 #include <dirent.h>
 #include <sys/stat.h>
 #include "ListMessage.h"
@@ -22,15 +21,13 @@ int main(void) {
 
     ServerOperation *command; //command the server executes
 
-    /*
-    ListMessage lm;
-    lm.fillMe("/home/osboxes/Desktop/test/\n");
-
-
-    string test = lm.execute();
-
-    cout << test;
-    */
+//    ListMessage lm;
+//    lm.fillMe("/home/osboxes/Desktop/test/\n");
+//
+//
+//    string test = lm.execute();
+//
+//    cout << test;
 
     int create_socket, new_socket;
     socklen_t addrlen;
@@ -50,17 +47,17 @@ int main(void) {
         mkdir("messages", 0777);
     }
 
-/*    SendMessage sm;
-    sm.fillMe("if16b063\n");
-    sm.fillMe("if23v054\n");
-    sm.fillMe("das ist der betreff\n");
-    sm.fillMe("Das ist die nachricht\n");
-    sm.fillMe("Was machst du heute nocht?\n");
-    sm.fillMe(".\n");
-
-
-    cout << sm.getStaus() << std::endl;
-    sm.execute();*/
+//    SendMessage sm;
+//    sm.fillMe("if16b063\n");
+//    sm.fillMe("if23v054\n");
+//    sm.fillMe("das ist der betreff\n");
+//    sm.fillMe("Das ist die nachricht\n");
+//    sm.fillMe("Was machst du heute nocht?\n");
+//    sm.fillMe(".\n");
+//
+//
+//    cout << sm.getStaus() << std::endl;
+//    sm.execute();
 
     if (bind(create_socket, (struct sockaddr *) &address, sizeof(address)) != 0) {
         perror("bind error");
@@ -87,6 +84,15 @@ int main(void) {
                 //parse received command and create the received command
                 if (strncasecmp(buffer, "send", 4) == 0) {
                     command = new SendMessage();
+                    //TODO -> find a way to put it in a loop
+//                    while(command->fillMe(buffer)){
+//                        size = recv(new_socket, buffer, BUF - 1, 0);
+//                        if(size > 0){
+//                            buffer[size] = '\0';
+//                            cout << "Message received: " << buffer << endl;
+//                            command->fillMe(buffer);
+//                        }
+                    }
                 } else if (strncasecmp(buffer, "list", 4) == 0) {
                     command = new ListMessage();
                 } else if (strncasecmp(buffer, "read", 4) == 0) {

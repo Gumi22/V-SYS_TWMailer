@@ -21,16 +21,16 @@ string SendMessage::execute() {
             std::chrono::system_clock::now().time_since_epoch()
     );
 
-    /// save receiver with \n in string
+    /// save receiver with \n on the end of the string
     string receiver_print = receiver;
-    ///delete \n for routing in directories
+    ///delete \n from the end of the string for routing in directories
     receiver.pop_back();
     ///build correct path into directory of the receiver
     string path_of_Directory = "./messages/" + receiver;
     ///build a unique path to the mail txt file
     string path_to_file = "./messages/" + receiver + '/' + std::to_string(ms.count()) + ".txt";
 
-    ///convert all strings into char * for functions
+    ///convert all strings into char * for functions opendir, mkdir, fprintf
     const char * path = path_of_Directory.c_str();
     const char * path_to_File = path_to_file.c_str();
     const char * sender_char = sender.c_str();
