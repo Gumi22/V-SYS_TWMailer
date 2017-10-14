@@ -50,7 +50,7 @@ int main(void) {
         mkdir("messages", 0777);
     }
 
-    SendMessage sm;
+/*    SendMessage sm;
     sm.fillMe("if16b063\n");
     sm.fillMe("if23v054\n");
     sm.fillMe("das ist der betreff\n");
@@ -60,7 +60,7 @@ int main(void) {
 
 
     cout << sm.getStaus() << std::endl;
-    sm.execute();
+    sm.execute();*/
 
     if (bind(create_socket, (struct sockaddr *) &address, sizeof(address)) != 0) {
         perror("bind error");
