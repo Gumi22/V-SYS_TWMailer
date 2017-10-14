@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
-#include <sstream>
 #include <dirent.h>
 #include <sys/stat.h>
 #include "ListMessage.h"
@@ -59,7 +58,7 @@ int main(void) {
     sm.fillMe(".\n");
 
 
-    cout << sm.getStatus() << std::endl;
+    cout << sm.getStaus() << std::endl;
     sm.execute();*/
 
     if (bind(create_socket, (struct sockaddr *) &address, sizeof(address)) != 0) {
