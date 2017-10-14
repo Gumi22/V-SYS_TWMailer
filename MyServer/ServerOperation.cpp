@@ -9,5 +9,5 @@ ServerOperation::ServerOperation() {
     statusMessage = "expecting parameter.\n";
 }
 
-string ServerOperation::getStaus() {return statusMessage;}
+string ServerOperation::getStatus() {return statusMessage;}
 

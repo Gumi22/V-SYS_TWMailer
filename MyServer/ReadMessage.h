@@ -9,7 +9,22 @@
 #include "ServerOperation.h"
 
 class ReadMessage : public ServerOperation {
+public:
+    //Constructor
+    ReadMessage();
 
+    virtual bool fillMe(string);
+
+    //Searches for message in specified Folder and reads it, returns:
+    //  <whole content of specified message> \n
+    //or empty string if nothing was found.
+    virtual string execute();
+
+private:
+    //Parses the input parameters
+    string User;
+    int MessageNumber;
+    int ParameterCount;
 };
 
 

@@ -59,7 +59,7 @@ int main(void) {
     sm.fillMe(".\n");
 
 
-    cout << sm.getStaus() << std::endl;
+    cout << sm.getStatus() << std::endl;
     sm.execute();*/
 
     if (bind(create_socket, (struct sockaddr *) &address, sizeof(address)) != 0) {
@@ -90,7 +90,7 @@ int main(void) {
                 } else if (strncasecmp(buffer, "list", 4) == 0) {
                     command = new ListMessage();
                 } else if (strncasecmp(buffer, "read", 4) == 0) {
-                    //ToDo: Add read command when ready
+                    command = new ReadMessage();
                 } else if (strncasecmp(buffer, "del", 3) == 0) {
                     //ToDo: Add del command when ready
                 } else if (strncasecmp(buffer, "quit", 4) == 0) {
@@ -106,11 +106,11 @@ int main(void) {
                 do {
                     //always send the client confirmation
                     //ToDo: remove this later, its just for debugging purposes
-                    string confirmation = command->getStaus();
+                    string confirmation = command->getStatus();
                     send(new_socket, confirmation.c_str(), confirmation.length(), 0);
 
                     //ToDo: remove this next line, its for debugging purposes
-                    cout << command->getStaus();
+                    cout << command->getStatus();
 
                     //receive next line
                     size = recv(new_socket, buffer, BUF - 1, 0);
@@ -125,7 +125,7 @@ int main(void) {
                         return EXIT_FAILURE;
                     }
                 } while (command->fillMe(buffer)); //Fill Command with parameters till its satisfied
-                cout << command->getStaus();
+                cout << command->getStatus();
                 string result = command->execute(); //finally execute command
 
                 //send the result to the client:

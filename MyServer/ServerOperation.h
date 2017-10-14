@@ -11,6 +11,7 @@
 #include <map>
 
 
+
 using namespace std;
 
 
@@ -18,8 +19,9 @@ using namespace std;
 class ServerOperation {
 
 protected:
-    string raw_Message;
     string statusMessage;
+    const string MESSAGEDIR = "messages";
+    const string USERDIR = "users";
 
 
 public:
@@ -30,7 +32,7 @@ public:
     //returns true id next line needs to be read and filled and false if Operation got all needed arguments or failed.
     virtual bool fillMe(string) = 0;
 
-    string getStaus();
+    string getStatus();
 
     //Executes the operation returns the server response as a string
     virtual string execute() = 0;

@@ -26,9 +26,9 @@ string SendMessage::execute() {
     ///delete \n for routing in directories
     receiver.pop_back();
     ///build correct path into directory of the receiver
-    string path_of_Directory = "./messages/" + receiver;
+    string path_of_Directory = MESSAGEDIR + '/' + receiver;
     ///build a unique path to the mail txt file
-    string path_to_file = "./messages/" + receiver + '/' + std::to_string(ms.count()) + ".txt";
+    string path_to_file = MESSAGEDIR + '/' + receiver + '/' + std::to_string(ms.count()) + ".txt";
 
     ///convert all strings into char * for functions
     const char * path = path_of_Directory.c_str();
@@ -48,7 +48,7 @@ string SendMessage::execute() {
 
     ///write all information into the mail-txt file.
     fprintf(mail, "%s", sender_char);
-    fprintf(mail, "%s", receiver_print_char);
+    //fprintf(mail, "%s", receiver_print_char); -> not important because this is the directory the file is in
     fprintf(mail, "%s", subject_char);
     fprintf(mail, "%s", message_final_char);
 
@@ -57,7 +57,7 @@ string SendMessage::execute() {
 
 
 
-    return "NICE TRY :D";
+    return "OK\n";
 }
 
 bool SendMessage::fillMe(string message) {

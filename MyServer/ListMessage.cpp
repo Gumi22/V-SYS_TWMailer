@@ -4,7 +4,6 @@
 
 #include <regex>
 #include "ListMessage.h"
-//#include <sys/types.h>
 #include <dirent.h>
 #include <fstream>
 
@@ -26,7 +25,7 @@ bool ListMessage::fillMe(string line) {
     else{
         //ignore \n if found:
         User = line.substr(0, end);
-        statusMessage = "OK\n";
+        statusMessage = "not executed yet\n";
         return false;
     }
 }
@@ -36,7 +35,8 @@ bool ListMessage::fillMe(string line) {
 string ListMessage::execute() {
     string result = "", subjects = "";
     int count = 0;
-    DIR* userDir = opendir(User.c_str()); //Open User Directory
+    string dir = MESSAGEDIR + "/" + User;
+    DIR* userDir = opendir(dir.c_str()); //Open User Directory
 
     struct dirent * userDirEntry; //individual entries in the directory.
     ifstream messageFile;
@@ -44,6 +44,7 @@ string ListMessage::execute() {
 
     //if no directory found return 0
     if(userDir == nullptr){
+        statusMessage = "No such User \"" + User + "\" found\n";
         return "0\n";
     }
 
@@ -52,7 +53,7 @@ string ListMessage::execute() {
         //only read regular files
         if(userDirEntry->d_type == DT_REG){
             //ToDo: look if filename ends with .msg or .txt
-            messageFile.open(User + "/" + userDirEntry->d_name);
+            messageFile.open(dir + "/" + userDirEntry->d_name);
             if(messageFile.is_open()){
                 //reading if open
                 getline(messageFile, line); //get First line->should be sender... ignore this part for now, maybe add to list later
@@ -69,6 +70,8 @@ string ListMessage::execute() {
     result.append(to_string(count));
     result.append("\n");
     result.append(subjects);
+
+    statusMessage = "OK\n";
 
     return result;
 }
