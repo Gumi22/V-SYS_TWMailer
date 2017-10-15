@@ -51,6 +51,7 @@ string ListMessage::execute() {
 
     //while directory isn't empty or didn't reach end keep looking:
     while((userDirEntry = readdir(userDir)) != nullptr){
+        count ++;
         //only read regular files
         if(userDirEntry->d_type == DT_REG){
             //ToDo: look if filename ends with .msg or .txt
@@ -62,7 +63,6 @@ string ListMessage::execute() {
                 //close file again
                 messageFile.close();
                 //update results
-                count ++;
                 subjects.append(to_string(count) + "...");
                 subjects.append(line);
                 subjects.append("\n");

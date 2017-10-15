@@ -12,7 +12,8 @@
 #include <chrono>
 
 SendMessage::SendMessage() : ServerOperation() {
-
+    index = 1;
+    statusMessage = "Sender:";
 }
 
 string SendMessage::execute() {
@@ -47,17 +48,17 @@ string SendMessage::execute() {
     FILE *mail = fopen(path_to_File, "w");
 
     ///write all information into the mail-txt file.
-    fprintf(mail, "%s", sender_char);
+    fprintf(mail, "Sender: %s", sender_char);
     //fprintf(mail, "%s", receiver_print_char); -> not important because this is the directory the file is in
-    fprintf(mail, "%s", subject_char);
+    fprintf(mail, "Subject: %s", subject_char);
     fprintf(mail, "%s", message_final_char);
 
     ///close the file
     fclose(mail);
 
 
-
-    return "OK\n";
+    statusMessage = "OK\n";
+    return "Message sent!\n";
 }
 
 bool SendMessage::fillMe(string message) {
@@ -67,6 +68,7 @@ bool SendMessage::fillMe(string message) {
                 if(message.length() <= 9){
                     sender = message;
                     index ++;
+                    statusMessage = "Receiver:";
                     return true;
                 }
                 statusMessage = "Invalid Sender - Max 8 Characters!";
@@ -75,6 +77,7 @@ bool SendMessage::fillMe(string message) {
                 if(message.length() <= 9){
                     receiver = message;
                     index ++;
+                    statusMessage = "Subject:";
                     return true;
                 }
                 statusMessage = "Invalid Receiver - Max 8 Characters";
@@ -83,6 +86,7 @@ bool SendMessage::fillMe(string message) {
                 if(message.length() <= 81){
                     subject = message;
                     index ++;
+                    statusMessage = "Message-Line:";
                     return true;
                 }
                  statusMessage = "Invalid Subject - Max 80 Characters!";
@@ -93,7 +97,7 @@ bool SendMessage::fillMe(string message) {
         }
     }
     if(index == 4 && message == ".\n"){
-        statusMessage = "OK";
+        statusMessage = "not executed yet\n";
         return false;
     }else{
         statusMessage = "Invalid Input - Operation cancelled!";

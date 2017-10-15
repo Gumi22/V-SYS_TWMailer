@@ -19,7 +19,7 @@ public:
 
 private:
     string sender, subject, message_final, receiver;
-    int index = 1;
+    int index;
 };
 
 
