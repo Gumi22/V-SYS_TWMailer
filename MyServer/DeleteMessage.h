@@ -9,6 +9,16 @@
 
 
 class DeleteMessage : public ServerOperation{
+public:
+    DeleteMessage();
+
+    virtual bool fillMe(string);
+
+    virtual string execute();
+
+private:
+    string  username;
+    int parameter_count, chosen_message;
 
 };
 
