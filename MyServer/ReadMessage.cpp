@@ -64,20 +64,16 @@ string ReadMessage::execute() {
     //while directory isn't empty or didn't reach right file keep looking:
     while((userDirEntry = readdir(userDir)) != nullptr && count <= MessageNumber){
         //only read regular files
-        printf("%s \n",userDirEntry->d_name);
         if(userDirEntry->d_type == DT_REG){
             //ToDo: look if filename ends with .msg or .txt
             messageFile.open(dir + "/" + userDirEntry->d_name);
             if(messageFile.is_open()){
                 //count as countable file
                 count ++;
-                printf("%d \n",count);
                 if(count == MessageNumber){
                     //reading if reached right file
-                    printf("file matched\n");
                     while(!messageFile.eof()){
                         //read till the end and save lines to the result:
-                        printf("reading line\n");
                         getline(messageFile, line);
                         result.append(line);
                         result.append("\n");
@@ -89,6 +85,10 @@ string ReadMessage::execute() {
         }
     }
 
+    if(result == ""){
+        statusMessage = FAILURE;
+        result = "No matching file found.\n";
+    }
 
     statusMessage = SUCCESS;
     closedir(userDir);

@@ -61,7 +61,7 @@ int main (int argc, char **argv) {
       receive(create_socket, buffer);
 
       //start parameter sending
-      while (strcmp (buffer, "OK\n") != 0 && strcmp (buffer, "ERR\n") != 0){ //As long as the end wasn't reached (natural or error)
+      while (strcmp (buffer, SUCCESS) != 0 && strcmp (buffer, FAILURE) != 0){ //As long as the end wasn't reached (natural or error)
           //print received instructions (status message)
           printf ("%s ", buffer);
           //get user input and send
@@ -72,7 +72,7 @@ int main (int argc, char **argv) {
       }
 
       //override received status message with result:
-      send(create_socket, "OK\n", strlen ("OK\n"), 0); //send confirmation
+      send(create_socket, SUCCESS, strlen(SUCCESS), 0); //send confirmation
       strcpy(buffer, "");
       receive(create_socket, buffer);
 

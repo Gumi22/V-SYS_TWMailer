@@ -81,8 +81,8 @@ int main(void) {
                     command = new ReadMessage();
                 } else if (strncasecmp(buffer, "del", 3) == 0) {
                     //ToDo: Add del command when ready and delete following code:
-                    char message[] = "ERR\n";
-                    send(new_socket, message, strlen(message), 0);
+                    char message[] = "placeholder";
+                    send(new_socket, FAILURE, strlen(FAILURE), 0);
                     recv(new_socket, message, strlen(message) - 1, 0); //always wait for confirmation
                     commandMatched = false;
                     commandResult = "No matching command found.\n";
@@ -90,8 +90,8 @@ int main(void) {
                 } else if (strncasecmp(buffer, "quit", 4) == 0) {
                     //quit
                     //ToDo: make quit a real command :D
-                    char message[] = "OK\n";
-                    send(new_socket, message, strlen(message), 0);
+                    char message[] = "placeholder";
+                    send(new_socket, SUCCESS, strlen(SUCCESS), 0);
                     recv(new_socket, message, strlen(message) - 1, 0); //always wait for confirmation
                     //commandMatched = false;
                     commandResult = "quit\n";
@@ -99,8 +99,8 @@ int main(void) {
                     break;
                 } else {
                     //No commands matched
-                    char message[] = "ERR\n";
-                    send(new_socket, message, strlen(message), 0);
+                    char message[] = "placeholder";
+                    send(new_socket, FAILURE, strlen(FAILURE), 0);
                     recv(new_socket, message, strlen(message) - 1, 0); //always wait for confirmation
                     commandMatched = false;
                     commandResult = "No matching command found.\n";
@@ -126,14 +126,27 @@ int main(void) {
                             perror("recv error");
                             return EXIT_FAILURE;
                         }
-                    } while (command->fillMe(buffer)); //Fill Command with parameters till its satisfied
-                    commandResult = command->execute(); //finally execute command
 
-                    //send the result to the client:
-                    send(new_socket, command->getStatus().c_str(), command->getStatus().length(), 0); //send command status
-                    char message[] = "OK\n";
-                    recv(new_socket, message, strlen(message), 0); //always wait for confirmation
-                    send(new_socket, commandResult.c_str(), commandResult.length(), 0); //send command result
+
+                    } while (command->fillMe(buffer)); //Fill Command with parameters till its satisfied
+                    if(command->getStatus() == EXECUTEPENDING) {
+                        commandResult = command->execute(); //finally execute command
+
+                        //send the result to the client:
+                        send(new_socket, command->getStatus().c_str(), command->getStatus().length(), 0); //send command status
+                        char message[] = "placeholder";
+                        recv(new_socket, message, strlen(message), 0); //always wait for confirmation
+                        send(new_socket, commandResult.c_str(), commandResult.length(), 0); //send command result
+                    }
+                    else{
+                        commandResult = command->getStatus() + "\n"; //finally execute command
+
+                        //send the result to the client:
+                        send(new_socket, FAILURE, strlen(FAILURE), 0); //send command status
+                        char message[] = "placeholder";
+                        recv(new_socket, message, strlen(message), 0); //always wait for confirmation
+                        send(new_socket, commandResult.c_str(), commandResult.length(), 0); //send command result
+                    }
 
                     cout << command->getStatus() << "\n"; //ToDo: remove this line later
                     cout << commandResult; //ToDo: remove this line later
