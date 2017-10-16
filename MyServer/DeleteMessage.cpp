@@ -9,6 +9,7 @@ DeleteMessage::DeleteMessage() : ServerOperation() {
     parameter_count = 0;
     chosen_message = 0;
     username = "";
+    statusMessage = "User:";
 }
 
 bool DeleteMessage::fillMe(string message) {
@@ -20,7 +21,7 @@ bool DeleteMessage::fillMe(string message) {
                 parameter_count ++;
                 username = message;
                 username.pop_back();
-                statusMessage = "valid input!";
+                statusMessage = "Message-number:";
                 return true;
             }else {
                 statusMessage = "invalid username - Max 8 Characters!";
@@ -29,8 +30,8 @@ bool DeleteMessage::fillMe(string message) {
         case 1:
             if(!message.empty() && isdigit(message[0]) && message[0] != '0'){
                 chosen_message = stoi(message);
-                statusMessage = "valid parameter - not executed yet!";
-                return true;
+                statusMessage = EXECUTEPENDING;
+                return false;
             }else{
                 statusMessage = "Invalid Message-Number - Must be a number bigger than 0!";
                 return false;
@@ -43,13 +44,13 @@ bool DeleteMessage::fillMe(string message) {
 
 string DeleteMessage::execute() {
     string result = "";
-    string dir = MESSAGEDIR + "/" + username + "/";
+    string dir = string(MESSAGEDIR) + "/" + username + "/";
 
     const char * dir_char = dir.c_str();
     int delete_result = remove(dir_char);
 
     result = to_string(delete_result);
-    statusMessage = "OK\n";
+    statusMessage = SUCCESS;
 
     return result;
 }

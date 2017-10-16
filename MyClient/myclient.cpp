@@ -14,6 +14,10 @@
 void receive(int fd, char *buf);
 
 int main (int argc, char **argv) {
+    //ToDo: Put this in Config file
+    const char SUCCESS[4] = "OK\n";
+    const char FAILURE[5] = "ERR\n";
+    const char EXECUTEPENDING[4] = "EP\n";
   int create_socket;
   char buffer[BUF];
   struct sockaddr_in address;

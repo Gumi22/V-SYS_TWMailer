@@ -20,8 +20,12 @@ class ServerOperation {
 
 protected:
     string statusMessage;
-    const string MESSAGEDIR = "messages";
-    const string USERDIR = "users";
+    //ToDo: Put this in Config file
+    const char MESSAGEDIR[9] = "messages";
+    const char USERDIR[6] = "users";
+    const char SUCCESS[4] = "OK\n";
+    const char FAILURE[5] = "ERR\n";
+    const char EXECUTEPENDING[4] = "EP\n";
 
 
 public:

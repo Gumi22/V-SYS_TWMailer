@@ -20,13 +20,13 @@ bool ListMessage::fillMe(string line) {
 
     if(end == string::npos || end == 0 || end > 9){
         //no \n found, or no user given (\n is first character), or username to long
-        statusMessage = "User:\n";
+        statusMessage = "Username \"" + User +  "\" not valid\n";
         return false; //eventually return true if we want to give the sender another chance of not being a total dick and sending bullshit.
     }
     else{
         //ignore \n if found:
         User = line.substr(0, end);
-        statusMessage = "not executed yet\n";
+        statusMessage = EXECUTEPENDING;
         return false;
     }
 }
@@ -36,7 +36,7 @@ bool ListMessage::fillMe(string line) {
 string ListMessage::execute() {
     string result = "", subjects = "";
     int count = 0;
-    string dir = MESSAGEDIR + "/" + User;
+    string dir = string(MESSAGEDIR) + "/" + User;
     DIR* userDir = opendir(dir.c_str()); //Open User Directory
 
     struct dirent * userDirEntry; //individual entries in the directory.
@@ -45,13 +45,13 @@ string ListMessage::execute() {
 
     //if no directory found return 0
     if(userDir == nullptr){
-        statusMessage = "No such User \"" + User + "\" found\n";
-        return "0\n";
+        statusMessage = FAILURE;
+        closedir(userDir);
+        return "No such User \"" + User + "\" found\n";
     }
 
     //while directory isn't empty or didn't reach end keep looking:
     while((userDirEntry = readdir(userDir)) != nullptr){
-        count ++;
         //only read regular files
         if(userDirEntry->d_type == DT_REG){
             //ToDo: look if filename ends with .msg or .txt
@@ -63,6 +63,7 @@ string ListMessage::execute() {
                 //close file again
                 messageFile.close();
                 //update results
+                count ++;
                 subjects.append(to_string(count) + "...");
                 subjects.append(line);
                 subjects.append("\n");
@@ -73,7 +74,8 @@ string ListMessage::execute() {
     result.append("\n");
     result.append(subjects);
 
-    statusMessage = "OK\n";
+    statusMessage = SUCCESS;
 
+    closedir(userDir);
     return result;
 }
