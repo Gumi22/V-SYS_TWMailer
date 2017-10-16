@@ -17,6 +17,8 @@
 
 #define BUF 1024
 
+void createWorkingDirectories(string, string);
+
 int main(int argc, char **argv) {
     //ToDo: Put this in Config file
     const char MESSAGEDIR[9] = "messages";
@@ -26,6 +28,9 @@ int main(int argc, char **argv) {
     const char EXECUTEPENDING[4] = "EP\n";
     int PORT;
 
+    ServerOperation *command; //command the server executes
+
+    //parse arguments
     if(argc >= 2){
         PORT = atoi(argv[1]);
     }else{
@@ -33,8 +38,10 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    ServerOperation *command; //command the server executes
+    //create needed directories
+    createWorkingDirectories(MESSAGEDIR, USERDIR);
 
+    //create socket
     int create_socket, new_socket;
     socklen_t addrlen;
     char buffer[BUF];
@@ -48,14 +55,6 @@ int main(int argc, char **argv) {
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
 
-    bool commandMatched = false;
-    string commandResult = "";
-
-    ///check if directory already exists, if not - create one
-    if(!opendir(MESSAGEDIR)) {
-        mkdir(MESSAGEDIR, 0777);
-    }
-
     if (bind(create_socket, (struct sockaddr *) &address, sizeof(address)) != 0) {
         perror("bind error");
         return EXIT_FAILURE;
@@ -64,6 +63,7 @@ int main(int argc, char **argv) {
 
     addrlen = sizeof(struct sockaddr_in);
 
+    //start server loop:
     while (true) {
         printf("Waiting for connections...\n");
         new_socket = accept(create_socket, (struct sockaddr *) &cliaddress, &addrlen);
@@ -72,14 +72,19 @@ int main(int argc, char **argv) {
             strcpy(buffer, "Welcome to myserver, Please enter your command:\n");
             send(new_socket, buffer, strlen(buffer), 0);
         }
+        //Client connected, start command execution loop:
+        bool commandMatched = false;
+        string commandResult = "";
         do {
+            //get command
             size = recv(new_socket, buffer, BUF - 1, 0);
             if (size > 0) {
                 buffer[size] = '\0';
-                printf("Message received: %s\n", buffer);
+                printf("Message received: %s", buffer);
 
-                commandMatched = true;
-                //parse received command and create the received command
+                commandMatched = true; //we expect a real command, so reset it to true every command call
+
+                //create the received command depending on string that was sent
                 if (strncasecmp(buffer, "send", 4) == 0) {
                     command = new SendMessage();
                 } else if (strncasecmp(buffer, "list", 4) == 0) {
@@ -94,10 +99,9 @@ int main(int argc, char **argv) {
                     char message[] = "placeholder";
                     send(new_socket, SUCCESS, strlen(SUCCESS), 0);
                     recv(new_socket, message, strlen(message) - 1, 0); //always wait for confirmation
-                    //commandMatched = false;
                     commandResult = "quit\n";
                     send(new_socket, commandResult.c_str(), commandResult.length(), 0);
-                    break;
+                    break; //quit command loop -> new client can connect now
                 } else {
                     //No commands matched
                     char message[] = "placeholder";
@@ -108,8 +112,9 @@ int main(int argc, char **argv) {
                     send(new_socket, commandResult.c_str(), commandResult.length(), 0);
                 }
 
-                //if command was matched - get all the parameters
+                //if command was matched - get all the parameters and execute
                 if(commandMatched) {
+                    //get the parameters
                     do {
                         //always send the client confirmation and the instructions what to do
                         string confirmation = command->getStatus();
@@ -130,24 +135,23 @@ int main(int argc, char **argv) {
 
 
                     } while (command->fillMe(buffer)); //Fill Command with parameters till its satisfied
+
+                    //were parameters filled correctly? if yes execute, if not return error message
                     if(command->getStatus() == EXECUTEPENDING) {
                         commandResult = command->execute(); //finally execute command
 
-                        //send the result to the client:
+                        //send the status to the client:
                         send(new_socket, command->getStatus().c_str(), command->getStatus().length(), 0); //send command status
-                        char message[] = "placeholder";
-                        recv(new_socket, message, strlen(message), 0); //always wait for confirmation
-                        send(new_socket, commandResult.c_str(), commandResult.length(), 0); //send command result
                     }
                     else{
-                        commandResult = command->getStatus() + "\n"; //finally execute command
+                        commandResult = command->getStatus() + "\n"; //save the status as command result
 
-                        //send the result to the client:
+                        //send Error to the client:
                         send(new_socket, FAILURE, strlen(FAILURE), 0); //send command status
-                        char message[] = "placeholder";
-                        recv(new_socket, message, strlen(message), 0); //always wait for confirmation
-                        send(new_socket, commandResult.c_str(), commandResult.length(), 0); //send command result
                     }
+                    char message[] = "placeholder";
+                    recv(new_socket, message, strlen(message), 0); //always wait for confirmation
+                    send(new_socket, commandResult.c_str(), commandResult.length(), 0); //send command result
 
                     cout << command->getStatus() << "\n"; //ToDo: remove this line later
                     cout << commandResult; //ToDo: remove this line later
@@ -165,4 +169,13 @@ int main(int argc, char **argv) {
     }
     close(create_socket);
     return EXIT_SUCCESS;
+}
+
+//checks if directories already exist, if not - creates them
+void createWorkingDirectories(string msgdir, string usrdir){
+    //check mesages directory
+    if(!opendir(msgdir.c_str())) {
+        mkdir(msgdir.c_str(), 0777);
+    }
+    //ToDo: check user directory;
 }
