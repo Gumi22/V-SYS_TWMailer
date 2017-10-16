@@ -63,18 +63,23 @@ string SendMessage::execute() {
 }
 
 bool SendMessage::fillMe(string message) {
+    ///check if the input from client is just a . and \n, if yes - the input from user is finished
     if(message != ".\n"){
         switch(index){
             case 1:
+                ///first information for the server is the username, which is the sender
                 if(message.length() <= 9){
                     sender = message;
                     index ++;
+                    ///give the client the information about the next required input.
                     statusMessage = "Receiver:";
                     return true;
                 }
+                ///if the input is not valid - return false and give the client information about required form for the input.
                 statusMessage = "Invalid Sender - Max 8 Characters!";
                 return false;
             case 2:
+                ///second information the server needs is the username from the receiver
                 if(message.length() <= 9){
                     receiver = message;
                     index ++;
@@ -84,6 +89,7 @@ bool SendMessage::fillMe(string message) {
                 statusMessage = "Invalid Receiver - Max 8 Characters";
                 return false;
             case 3:
+                ///check if the 3rd input is correct, has to be the subject and not longer as 80 characters
                 if(message.length() <= 81){
                     subject = message;
                     index ++;
@@ -93,14 +99,16 @@ bool SendMessage::fillMe(string message) {
                  statusMessage = "Invalid Subject - Max 80 Characters!";
                 return false;
             default:
+                ///the last input is the message. At each new line the message gets added to the messages before.
                 message_final += message;
                 return true;
         }
-    }
+    }/// check if the index is 4 and all steps are done succesfully - if yes set the server status to "ready of execute" and return true
     else if(index == 4){
         statusMessage = EXECUTEPENDING;
         return false;
     }else{
+        ///if something went wront in the steps above - return false and give the client the information about invalid input.
         statusMessage = "Invalid Input - Operation cancelled!";
         return false;
     }
