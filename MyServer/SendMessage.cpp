@@ -10,6 +10,7 @@
 #include <dirent.h>
 #include "SendMessage.h"
 #include <chrono>
+#include <fstream>
 
 SendMessage::SendMessage() : ServerOperation() {
     index = 1;
@@ -27,9 +28,9 @@ string SendMessage::execute() {
     ///delete \n from the end of the string for routing in directories
     receiver.pop_back();
     ///build correct path into directory of the receiver
-    string path_of_Directory = MESSAGEDIR + '/' + receiver;
+    string path_of_Directory = string(MESSAGEDIR) + '/' + receiver;
     ///build a unique path to the mail txt file
-    string path_to_file = MESSAGEDIR + '/' + receiver + '/' + std::to_string(ms.count()) + ".txt";
+    string path_to_file = string(MESSAGEDIR) + '/' + receiver + '/' + std::to_string(ms.count()) + ".txt";
 
     ///convert all strings into char * for functions opendir, mkdir, fprintf
     const char * path = path_of_Directory.c_str();
@@ -37,27 +38,38 @@ string SendMessage::execute() {
     const char * sender_char = sender.c_str();
     const char * subject_char = subject.c_str();
     const char * message_final_char = message_final.c_str();
-    const char * receiver_print_char = receiver_print.c_str();
+    //const char * receiver_print_char = receiver_print.c_str(); ->not really needed
 
     ///check if the directory is available, if not - create new
-    if(!opendir(path)){
+    DIR* test = opendir(path);
+    if(test == nullptr){
         mkdir(path, 0777);
     }
+    else{
+        closedir(test);
+    }
+
 
     ///open the file with the unique path
-    FILE *mail = fopen(path_to_File, "w");
+    fstream mail;
+    mail.open(path_to_File, fstream::out);
+    //FILE *mail = fopen(path_to_File, "w");
 
     ///write all information into the mail-txt file.
-    fprintf(mail, "Sender: %s", sender_char);
-    //fprintf(mail, "%s", receiver_print_char); -> not important because this is the directory the file is in
-    fprintf(mail, "Subject: %s", subject_char);
-    fprintf(mail, "%s", message_final_char);
+    mail << "Sender: " << sender_char;
+    mail << "Subject: " << subject_char;
+    mail << message_final_char;
+    //fprintf(mail, "Sender: %s", sender_char);
+    ///fprintf(mail, "%s", receiver_print_char); -> not important because this is the directory the file is in
+    //fprintf(mail, "Subject: %s", subject_char);
+    //fprintf(mail, "%s", message_final_char);
 
     ///close the file
-    fclose(mail);
+    mail.close();
+    //fclose(mail);
 
 
-    statusMessage = "OK\n";
+    statusMessage = SUCCESS;
     return "Message sent!\n";
 }
 
@@ -96,8 +108,8 @@ bool SendMessage::fillMe(string message) {
                 return true;
         }
     }
-    if(index == 4 && message == ".\n"){
-        statusMessage = "not executed yet\n";
+    else if(index == 4){
+        statusMessage = EXECUTEPENDING;
         return false;
     }else{
         statusMessage = "Invalid Input - Operation cancelled!";

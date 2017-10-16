@@ -31,7 +31,7 @@ bool ReadMessage::fillMe(string parameter) {
         if(!parameter.empty() && isdigit(parameter[0]) && parameter[0] != '0'){ //is the parameter even a number bigger than 0?
             MessageNumber = stoi(parameter);
             ParameterCount ++;
-            statusMessage = "not executed yet\n";
+            statusMessage = EXECUTEPENDING;
         }
         else{
             statusMessage = "Invalid Message Number - Must be integer bigger than 0!";
@@ -45,8 +45,8 @@ bool ReadMessage::fillMe(string parameter) {
 
 string ReadMessage::execute() {
     string result = "";
-    int count = 1;
-    string dir = MESSAGEDIR + "/" + User;
+    int count = 0;
+    string dir = string(MESSAGEDIR) + "/" + User;
 
     DIR* userDir = opendir(dir.c_str()); //Open User Directory
 
@@ -56,39 +56,41 @@ string ReadMessage::execute() {
 
     //if no directory found return 0
     if(userDir == nullptr){
-        statusMessage = "ERR\n";
+        statusMessage = FAILURE;
+        closedir(userDir);
         return "No such User \"" + User + "\" found\n";
     }
 
-    //while directory isn't empty or didn't reach end keep looking until number is reached:
-    while((userDirEntry = readdir(userDir)) != nullptr && count < MessageNumber){
-        count ++;
-    }
-
-    //only read regular files
-    if(userDirEntry->d_type == DT_REG){
-        //ToDo: look if filename ends with .msg or .txt
-        messageFile.open(dir + "/" + userDirEntry->d_name);
-        if(messageFile.is_open()){
-            //reading if open
-            while(!messageFile.eof()){
-                //read till the end and save lines to the result:
-                getline(messageFile, line);
-                result.append(line);
-                result.append("\n");
+    //while directory isn't empty or didn't reach right file keep looking:
+    while((userDirEntry = readdir(userDir)) != nullptr && count <= MessageNumber){
+        //only read regular files
+        if(userDirEntry->d_type == DT_REG){
+            //ToDo: look if filename ends with .msg or .txt
+            messageFile.open(dir + "/" + userDirEntry->d_name);
+            if(messageFile.is_open()){
+                //count as countable file
+                count ++;
+                if(count == MessageNumber){
+                    //reading if reached right file
+                    while(!messageFile.eof()){
+                        //read till the end and save lines to the result:
+                        getline(messageFile, line);
+                        result.append(line);
+                        result.append("\n");
+                    }
+                }
+                //close file again
+                messageFile.close();
             }
         }
-        else{
-            statusMessage = "ERR\n";
-            return "Could not open Message file.";
-        }
-    }
-    else{
-        statusMessage = "ERR\n";
-        return "Specified file is not a Message file.";
     }
 
-    statusMessage = "OK\n";
+    if(result == ""){
+        statusMessage = FAILURE;
+        result = "No matching file found.\n";
+    }
 
+    statusMessage = SUCCESS;
+    closedir(userDir);
     return result;
 }
