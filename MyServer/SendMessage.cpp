@@ -18,11 +18,9 @@ SendMessage::SendMessage() : ServerOperation() {
 }
 
 string SendMessage::execute() {
-
     std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >(
             std::chrono::system_clock::now().time_since_epoch()
     );
-
     /// save receiver with \n on the end of the string
     string receiver_print = receiver;
     ///delete \n from the end of the string for routing in directories
@@ -38,7 +36,6 @@ string SendMessage::execute() {
     const char * sender_char = sender.c_str();
     const char * subject_char = subject.c_str();
     const char * message_final_char = message_final.c_str();
-    //const char * receiver_print_char = receiver_print.c_str(); ->not really needed
 
     ///check if the directory is available, if not - create new
     DIR* test = opendir(path);
@@ -49,25 +46,17 @@ string SendMessage::execute() {
         closedir(test);
     }
 
-
     ///open the file with the unique path
     fstream mail;
     mail.open(path_to_File, fstream::out);
-    //FILE *mail = fopen(path_to_File, "w");
 
     ///write all information into the mail-txt file.
     mail << "Sender: " << sender_char;
     mail << "Subject: " << subject_char;
     mail << message_final_char;
-    //fprintf(mail, "Sender: %s", sender_char);
-    //fprintf(mail, "%s", receiver_print_char); -> not important because this is the directory the file is in
-    //fprintf(mail, "Subject: %s", subject_char);
-    //fprintf(mail, "%s", message_final_char);
 
     ///close the file
     mail.close();
-    //fclose(mail);
-
 
     statusMessage = SUCCESS;
     return "Message sent!\n";
