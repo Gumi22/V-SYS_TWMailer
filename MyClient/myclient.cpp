@@ -7,8 +7,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 #define BUF 1024
 #define PORT 6543
+
+void receive(int fd, char *buf);
 
 int main (int argc, char **argv) {
   int create_socket;
@@ -34,34 +37,60 @@ int main (int argc, char **argv) {
 
   if (connect ( create_socket, (struct sockaddr *) &address, sizeof (address)) == 0)
   {
-     printf ("Connection with server (%s) established\n", inet_ntoa (address.sin_addr));
-     size=recv(create_socket,buffer,BUF-1, 0);
-     if (size>0)
-     {
-        buffer[size]= '\0';
-        //printf("%s",buffer);
-     }
+      printf ("Connection with server (%s) established\n", inet_ntoa (address.sin_addr));
+      //expect a response;
+      receive(create_socket, buffer);
+      printf ("%s ", buffer);
   }
   else
   {
      perror("Connect error - no server available");
      return EXIT_FAILURE;
   }
-
+    //connected, do something till user wishes to quit:
   do {
+      //send command
+      fgets (buffer, BUF, stdin);
+      send(create_socket, buffer, strlen (buffer), 0);
 
-     printf ("Send message: %s ", buffer);
-     fgets (buffer, BUF, stdin);
-     send(create_socket, buffer, strlen (buffer), 0);
-      //expect a response;
-      size=recv(create_socket,buffer,BUF-1, 0);
-      if (size>0)
-      {
-          buffer[size]= '\0';
-          //printf("%s",buffer);
+      //receive response
+      receive(create_socket, buffer);
+
+      //start parameter sending
+      while (strcmp (buffer, "OK\n") != 0 && strcmp (buffer, "ERR\n") != 0){ //As long as the end wasn't reached (natural or error)
+          //print received instructions (status message)
+          printf ("%s ", buffer);
+          //get user input and send
+          fgets (buffer, BUF, stdin);
+          send(create_socket, buffer, strlen (buffer), 0);
+          //receive response
+          receive(create_socket, buffer);
       }
-  } 
-  while (strcmp (buffer, "quit\n") != 0);
+
+      //override received status message with result:
+      send(create_socket, "OK\n", strlen ("OK\n"), 0); //send confirmation
+      strcpy(buffer, "");
+      receive(create_socket, buffer);
+
+      //quit if command is quit
+      if(strcmp (buffer, "quit\n") == 0){
+          break;
+      }
+
+      //Print only result
+      printf ("%s ", buffer);
+      //request next command
+      printf ("Please enter your command:\n");
+
+  } while (true);
   close (create_socket);
   return EXIT_SUCCESS;
+}
+
+void receive(int fd, char *buf){
+    long size=recv(fd,buf, BUF-1, 0);
+    if (size>0)
+    {
+        buf[size]= '\0';
+    }
 }

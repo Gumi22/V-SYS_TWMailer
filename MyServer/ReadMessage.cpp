@@ -56,8 +56,8 @@ string ReadMessage::execute() {
 
     //if no directory found return 0
     if(userDir == nullptr){
-        statusMessage = "No such User \"" + User + "\" found\n";
-        return "ERR1\n";
+        statusMessage = "ERR\n";
+        return "No such User \"" + User + "\" found\n";
     }
 
     //while directory isn't empty or didn't reach end keep looking until number is reached:
@@ -79,13 +79,13 @@ string ReadMessage::execute() {
             }
         }
         else{
-            statusMessage = "Could not open Message file.";
-            return "ERR2\n";
+            statusMessage = "ERR\n";
+            return "Could not open Message file.";
         }
     }
     else{
-        statusMessage = "Specified file is not a Message file.";
-        return "ERR3\n";
+        statusMessage = "ERR\n";
+        return "Specified file is not a Message file.";
     }
 
     statusMessage = "OK\n";

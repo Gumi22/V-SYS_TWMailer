@@ -21,16 +21,6 @@ int main(void) {
 
     ServerOperation *command; //command the server executes
 
-    /*
-    ListMessage lm;
-    lm.fillMe("/home/osboxes/Desktop/test/\n");
-
-
-    string test = lm.execute();
-
-    cout << test;
-    */
-
     int create_socket, new_socket;
     socklen_t addrlen;
     char buffer[BUF];
@@ -44,22 +34,13 @@ int main(void) {
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
 
+    bool commandMatched = false;
+    string commandResult = "";
+
     ///check if directory already exists, if not - create one
     if(!opendir("messages")) {
         mkdir("messages", 0777);
     }
-
-/*    SendMessage sm;
-    sm.fillMe("if16b063\n");
-    sm.fillMe("if23v054\n");
-    sm.fillMe("das ist der betreff\n");
-    sm.fillMe("Das ist die nachricht\n");
-    sm.fillMe("Was machst du heute nocht?\n");
-    sm.fillMe(".\n");
-
-
-    cout << sm.getStaus() << std::endl;
-    sm.execute();*/
 
     if (bind(create_socket, (struct sockaddr *) &address, sizeof(address)) != 0) {
         perror("bind error");
@@ -83,6 +64,7 @@ int main(void) {
                 buffer[size] = '\0';
                 printf("Message received: %s\n", buffer);
 
+                commandMatched = true;
                 //parse received command and create the received command
                 if (strncasecmp(buffer, "send", 4) == 0) {
                     command = new SendMessage();
@@ -91,47 +73,64 @@ int main(void) {
                 } else if (strncasecmp(buffer, "read", 4) == 0) {
                     command = new ReadMessage();
                 } else if (strncasecmp(buffer, "del", 3) == 0) {
-                    //ToDo: Add del command when ready
+                    //ToDo: Add del command when ready and delete following code:
+                    char message[] = "ERR\n";
+                    send(new_socket, message, strlen(message), 0);
+                    recv(new_socket, message, strlen(message) - 1, 0); //always wait for confirmation
+                    commandMatched = false;
+                    commandResult = "No matching command found.\n";
+                    send(new_socket, commandResult.c_str(), commandResult.length(), 0);
                 } else if (strncasecmp(buffer, "quit", 4) == 0) {
                     //quit
+                    //ToDo: make quit a real command :D
+                    char message[] = "OK\n";
+                    send(new_socket, message, strlen(message), 0);
+                    recv(new_socket, message, strlen(message) - 1, 0); //always wait for confirmation
+                    //commandMatched = false;
+                    commandResult = "quit\n";
+                    send(new_socket, commandResult.c_str(), commandResult.length(), 0);
+                    break;
                 } else {
                     //No commands matched
-                    char message[] = "No matching command found\n";
+                    char message[] = "ERR\n";
                     send(new_socket, message, strlen(message), 0);
-                    break;
+                    recv(new_socket, message, strlen(message) - 1, 0); //always wait for confirmation
+                    commandMatched = false;
+                    commandResult = "No matching command found.\n";
+                    send(new_socket, commandResult.c_str(), commandResult.length(), 0);
                 }
 
                 //if command was matched - get all the parameters
-                do {
-                    //always send the client confirmation
-                    //ToDo: remove this later, its just for debugging purposes
-                    string confirmation = command->getStatus();
-                    send(new_socket, confirmation.c_str(), confirmation.length(), 0);
+                if(commandMatched) {
+                    do {
+                        //always send the client confirmation and the instructions what to do
+                        string confirmation = command->getStatus();
+                        send(new_socket, confirmation.c_str(), confirmation.length(), 0);
 
-                    //ToDo: remove this next line, its for debugging purposes
-                    cout << command->getStatus();
+                        //receive next line
+                        size = recv(new_socket, buffer, BUF - 1, 0);
+                        if (size > 0) {
+                            buffer[size] = '\0';
+                            printf("Message received: %s\n", buffer);
+                        } else if (size == 0) {
+                            printf("Client closed remote socket\n");
+                            break;
+                        } else {
+                            perror("recv error");
+                            return EXIT_FAILURE;
+                        }
+                    } while (command->fillMe(buffer)); //Fill Command with parameters till its satisfied
+                    commandResult = command->execute(); //finally execute command
 
-                    //receive next line
-                    size = recv(new_socket, buffer, BUF - 1, 0);
-                    if (size > 0) {
-                        buffer[size] = '\0';
-                        printf("Message received: %s\n", buffer);
-                    } else if (size == 0) {
-                        printf("Client closed remote socket\n");
-                        break;
-                    } else {
-                        perror("recv error");
-                        return EXIT_FAILURE;
-                    }
-                } while (command->fillMe(buffer)); //Fill Command with parameters till its satisfied
-                cout << command->getStatus();
-                string result = command->execute(); //finally execute command
+                    //send the result to the client:
+                    send(new_socket, command->getStatus().c_str(), command->getStatus().length(), 0); //send command status
+                    char message[] = "OK\n";
+                    recv(new_socket, message, strlen(message), 0); //always wait for confirmation
+                    send(new_socket, commandResult.c_str(), commandResult.length(), 0); //send command result
 
-                //send the result to the client:
-                send(new_socket, result.c_str(), result.length(), 0);
-
-                cout << result; //ToDo: remove this line later;
-                cout << command->getStatus(); //ToDo: remove this line later;
+                    cout << command->getStatus() << "\n"; //ToDo: remove this line later
+                    cout << commandResult; //ToDo: remove this line later
+                }
 
             } else if (size == 0) {
                 printf("Client closed remote socket\n");
