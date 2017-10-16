@@ -42,8 +42,10 @@ bool DeleteMessage::fillMe(string message) {
 }
 
 string DeleteMessage::execute() {
-    string result = "";
+    string result;
     string dir = MESSAGEDIR + "/" + username + "/";
+
+
 
     const char * dir_char = dir.c_str();
     int delete_result = remove(dir_char);
