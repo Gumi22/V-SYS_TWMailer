@@ -113,4 +113,3 @@ bool SendMessage::fillMe(string message) {
         return false;
     }
 }
-
