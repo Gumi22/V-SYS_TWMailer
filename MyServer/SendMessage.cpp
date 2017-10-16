@@ -60,7 +60,7 @@ string SendMessage::execute() {
     mail << "Subject: " << subject_char;
     mail << message_final_char;
     //fprintf(mail, "Sender: %s", sender_char);
-    ///fprintf(mail, "%s", receiver_print_char); -> not important because this is the directory the file is in
+    //fprintf(mail, "%s", receiver_print_char); -> not important because this is the directory the file is in
     //fprintf(mail, "Subject: %s", subject_char);
     //fprintf(mail, "%s", message_final_char);
 

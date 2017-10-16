@@ -13,18 +13,24 @@
 #include "ListMessage.h"
 #include "ReadMessage.h"
 #include "SendMessage.h"
+#include "DeleteMessage.h"
 
 #define BUF 1024
-#define PORT 6543
 
-int main(void) {
+int main(int argc, char **argv) {
     //ToDo: Put this in Config file
     const char MESSAGEDIR[9] = "messages";
     const char USERDIR[6] = "users";
     const char SUCCESS[4] = "OK\n";
     const char FAILURE[5] = "ERR\n";
     const char EXECUTEPENDING[4] = "EP\n";
+    int PORT;
 
+    if(argc >= 1){
+        PORT = atoi(argv[1]);
+    }else{
+        return EXIT_FAILURE;
+    }
 
     ServerOperation *command; //command the server executes
 
@@ -80,13 +86,7 @@ int main(void) {
                 } else if (strncasecmp(buffer, "read", 4) == 0) {
                     command = new ReadMessage();
                 } else if (strncasecmp(buffer, "del", 3) == 0) {
-                    //ToDo: Add del command when ready and delete following code:
-                    char message[] = "placeholder";
-                    send(new_socket, FAILURE, strlen(FAILURE), 0);
-                    recv(new_socket, message, strlen(message) - 1, 0); //always wait for confirmation
-                    commandMatched = false;
-                    commandResult = "No matching command found.\n";
-                    send(new_socket, commandResult.c_str(), commandResult.length(), 0);
+                    command = new DeleteMessage();
                 } else if (strncasecmp(buffer, "quit", 4) == 0) {
                     //quit
                     //ToDo: make quit a real command :D

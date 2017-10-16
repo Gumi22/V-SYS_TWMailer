@@ -3,6 +3,8 @@
 //
 
 #include <dirent.h>
+#include <fstream>
+#include <iostream>
 #include "DeleteMessage.h"
 
 DeleteMessage::DeleteMessage() : ServerOperation() {
@@ -43,16 +45,43 @@ bool DeleteMessage::fillMe(string message) {
 }
 
 string DeleteMessage::execute() {
-    string result = "";
-    string dir = string(MESSAGEDIR) + "/" + username + "/";
+    int count = 0;
+    int delete_result = 1;
+    string dir = string(MESSAGEDIR) + "/" + username;
 
+    DIR* userDir = opendir(dir.c_str()); //Open User Directory
 
+    struct dirent * userDirEntry; //individual entries in the directory.
 
-    const char * dir_char = dir.c_str();
-    int delete_result = remove(dir_char);
+    //if no directory found return 0
+    if(userDir == nullptr){
+        statusMessage = FAILURE;
+        closedir(userDir);
+        return "No such User \"" + username + "\" found\n";
+    }
 
-    result = to_string(delete_result);
-    statusMessage = SUCCESS;
+    //while directory isn't empty or didn't reach right file keep looking:
+    while ((userDirEntry = readdir(userDir)) != nullptr && count <= chosen_message) {
+        //only read regular files
+        if (userDirEntry->d_type == DT_REG) {
+            //count as countable file
+            count++;
+            if (count == chosen_message) {
+                //deleting if reached right file
+                dir += "/" + string(userDirEntry->d_name);
+                delete_result = remove(dir.c_str());
+                if(delete_result == 0){
+                    statusMessage = SUCCESS;
+                }else{
+                    statusMessage = FAILURE;
+                }
+            }
+        }
+    }
 
-    return result;
+    if(delete_result == 0){
+        return "Message deleted";
+    }else{
+        return "Delete not successful";
+    }
 }
