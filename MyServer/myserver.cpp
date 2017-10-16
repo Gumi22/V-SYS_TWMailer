@@ -26,9 +26,10 @@ int main(int argc, char **argv) {
     const char EXECUTEPENDING[4] = "EP\n";
     int PORT;
 
-    if(argc >= 1){
+    if(argc >= 2){
         PORT = atoi(argv[1]);
     }else{
+        cout << "No Port specified.\nUsage: myserver <port number>\n";
         return EXIT_FAILURE;
     }
 
@@ -51,8 +52,8 @@ int main(int argc, char **argv) {
     string commandResult = "";
 
     ///check if directory already exists, if not - create one
-    if(!opendir("messages")) {
-        mkdir("messages", 0777);
+    if(!opendir(MESSAGEDIR)) {
+        mkdir(MESSAGEDIR, 0777);
     }
 
     if (bind(create_socket, (struct sockaddr *) &address, sizeof(address)) != 0) {
