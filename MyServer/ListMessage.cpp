@@ -20,7 +20,7 @@ bool ListMessage::fillMe(string line) {
 
     if(end == string::npos || end == 0 || end > 9){
         //no \n found, or no user given (\n is first character), or username to long
-        statusMessage = "Username \"" + User +  "\" not valid\n";
+        statusMessage = "Username \"" + line +  "\" not valid\n";
         return false; //eventually return true if we want to give the sender another chance of not being a total dick and sending bullshit.
     }
     else{

@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
         MESSAGEDIR = argv[2];
         cout << MESSAGEDIR << endl;
     }else{
-        cout << "No Port or Path to Mailpool directory specified.\nUsage: myserver <port number> <path>\n";
+        cout << "No Port or Path to Mailspool directory specified.\nUsage: "<< argv[0] <<" <port number> <path>\n";
         return EXIT_FAILURE;
     }
 
