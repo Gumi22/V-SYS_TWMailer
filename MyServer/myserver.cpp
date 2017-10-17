@@ -21,7 +21,7 @@ void createWorkingDirectories(string, string);
 
 int main(int argc, char **argv) {
     //ToDo: Put this in Config file
-    const char * MESSAGEDIR;
+    const char *MESSAGEDIR;
     const char USERDIR[6] = "users";
     const char SUCCESS[4] = "OK\n";
     const char FAILURE[5] = "ERR\n";
@@ -31,11 +31,11 @@ int main(int argc, char **argv) {
     ServerOperation *command; //command the server executes
 
     //parse arguments
-    if(argc == 3){
+    if (argc == 3) {
         PORT = atoi(argv[1]);
         MESSAGEDIR = argv[2];
         cout << MESSAGEDIR << endl;
-    }else{
+    } else {
         cout << "No Port or Path to Mailpool directory specified.\nUsage: myserver <port number> <path>\n";
         return EXIT_FAILURE;
     }
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
                 }
 
                 //if command was matched - get all the parameters and execute
-                if(commandMatched) {
+                if (commandMatched) {
                     //get the parameters
                     do {
                         //always send the client confirmation and the instructions what to do
@@ -139,13 +139,13 @@ int main(int argc, char **argv) {
                     } while (command->fillMe(buffer)); //Fill Command with parameters till its satisfied
 
                     //were parameters filled correctly? if yes execute, if not return error message
-                    if(command->getStatus() == EXECUTEPENDING) {
+                    if (command->getStatus() == EXECUTEPENDING) {
                         commandResult = command->execute(); //finally execute command
 
                         //send the status to the client:
-                        send(new_socket, command->getStatus().c_str(), command->getStatus().length(), 0); //send command status
-                    }
-                    else{
+                        send(new_socket, command->getStatus().c_str(), command->getStatus().length(),
+                             0); //send command status
+                    } else {
                         commandResult = command->getStatus() + "\n"; //save the status as command result
 
                         //send Error to the client:
@@ -174,9 +174,9 @@ int main(int argc, char **argv) {
 }
 
 //checks if directories already exist, if not - creates them
-void createWorkingDirectories(string msgdir, string usrdir){
+void createWorkingDirectories(string msgdir, string usrdir) {
     //check mesages directory
-    if(!opendir(msgdir.c_str())) {
+    if (!opendir(msgdir.c_str())) {
         mkdir(msgdir.c_str(), 0777);
     }
     //ToDo: check user directory;
