@@ -21,7 +21,7 @@ void createWorkingDirectories(string, string);
 
 int main(int argc, char **argv) {
     //ToDo: Put this in Config file
-    const char MESSAGEDIR[9] = "messages";
+    const char * MESSAGEDIR;
     const char USERDIR[6] = "users";
     const char SUCCESS[4] = "OK\n";
     const char FAILURE[5] = "ERR\n";
@@ -31,10 +31,12 @@ int main(int argc, char **argv) {
     ServerOperation *command; //command the server executes
 
     //parse arguments
-    if(argc >= 2){
+    if(argc == 3){
         PORT = atoi(argv[1]);
+        MESSAGEDIR = argv[2];
+        cout << MESSAGEDIR << endl;
     }else{
-        cout << "No Port specified.\nUsage: myserver <port number>\n";
+        cout << "No Port or Path to Mailpool directory specified.\nUsage: myserver <port number> <path>\n";
         return EXIT_FAILURE;
     }
 
@@ -86,13 +88,13 @@ int main(int argc, char **argv) {
 
                 //create the received command depending on string that was sent
                 if (strncasecmp(buffer, "send", 4) == 0) {
-                    command = new SendMessage();
+                    command = new SendMessage(MESSAGEDIR);
                 } else if (strncasecmp(buffer, "list", 4) == 0) {
-                    command = new ListMessage();
+                    command = new ListMessage(MESSAGEDIR);
                 } else if (strncasecmp(buffer, "read", 4) == 0) {
-                    command = new ReadMessage();
+                    command = new ReadMessage(MESSAGEDIR);
                 } else if (strncasecmp(buffer, "del", 3) == 0) {
-                    command = new DeleteMessage();
+                    command = new DeleteMessage(MESSAGEDIR);
                 } else if (strncasecmp(buffer, "quit", 4) == 0) {
                     //quit
                     //ToDo: make quit a real command :D

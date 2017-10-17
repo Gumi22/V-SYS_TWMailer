@@ -11,7 +11,7 @@
 class ReadMessage : public ServerOperation {
 public:
     //Constructor
-    ReadMessage();
+    ReadMessage(const char * directory);
 
     virtual bool fillMe(string);
 

@@ -6,7 +6,7 @@
 #include <dirent.h>
 #include <fstream>
 
-ReadMessage::ReadMessage() {
+ReadMessage::ReadMessage(const char * directory) : ServerOperation(directory) {
     ParameterCount = 0;
     MessageNumber = 0; //give invalid message number at beginning
     statusMessage = "User:";

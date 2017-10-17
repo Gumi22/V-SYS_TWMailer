@@ -4,9 +4,10 @@
 
 #include "ServerOperation.h"
 
-ServerOperation::ServerOperation() {
+ServerOperation::ServerOperation(const char * directory) {
     //nothing has to be done
     statusMessage = "expecting parameter.\n";
+    MESSAGEDIR = directory;
 }
 
 string ServerOperation::getStatus() {return statusMessage;}

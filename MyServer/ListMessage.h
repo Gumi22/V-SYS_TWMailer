@@ -11,7 +11,7 @@
 class ListMessage : public ServerOperation{
 public:
     //Constructor
-    ListMessage();
+    ListMessage(const char * directory);
 
     virtual bool fillMe(string);
 

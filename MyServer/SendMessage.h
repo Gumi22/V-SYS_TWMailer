@@ -11,7 +11,7 @@
 class SendMessage : public ServerOperation{
 
 public:
-    explicit SendMessage();
+    explicit SendMessage(const char * directory);
 
     virtual bool fillMe(string Message);
 

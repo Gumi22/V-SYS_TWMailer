@@ -21,7 +21,7 @@ class ServerOperation {
 protected:
     string statusMessage;
     //ToDo: Put this in Config file
-    const char MESSAGEDIR[9] = "messages";
+    const char * MESSAGEDIR;
     const char USERDIR[6] = "users";
     const char SUCCESS[4] = "OK\n";
     const char FAILURE[5] = "ERR\n";
@@ -30,7 +30,7 @@ protected:
 
 public:
     //Constructor
-    ServerOperation();
+    ServerOperation(const char * directory);
 
     //fillMe fills internal arguments of operation with a string.
     //returns true id next line needs to be read and filled and false if Operation got all needed arguments or failed.

@@ -4,10 +4,9 @@
 
 #include <dirent.h>
 #include <fstream>
-#include <iostream>
 #include "DeleteMessage.h"
 
-DeleteMessage::DeleteMessage() : ServerOperation() {
+DeleteMessage::DeleteMessage(const char * directory) : ServerOperation(directory) {
     parameter_count = 0;
     chosen_message = 0;
     username = "";

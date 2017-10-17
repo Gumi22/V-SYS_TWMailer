@@ -9,7 +9,7 @@
 
 
 
-ListMessage::ListMessage() :ServerOperation() {
+ListMessage::ListMessage(const char * directory) :ServerOperation(directory) {
     statusMessage = "User:";
 }
 

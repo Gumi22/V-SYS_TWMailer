@@ -12,7 +12,7 @@
 #include <chrono>
 #include <fstream>
 
-SendMessage::SendMessage() : ServerOperation() {
+SendMessage::SendMessage(const char *directory) : ServerOperation(directory) {
     index = 1;
     statusMessage = "Sender:";
 }

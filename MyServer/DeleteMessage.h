@@ -10,7 +10,7 @@
 
 class DeleteMessage : public ServerOperation{
 public:
-    DeleteMessage();
+    DeleteMessage(const char * directory);
 
     virtual bool fillMe(string);
 
