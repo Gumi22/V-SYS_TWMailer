@@ -9,7 +9,6 @@
 #include <string.h>
 #include <iostream>
 #define BUF 1024
-#define PORT 6543
 
 void receive(int fd, char *buf);
 
@@ -18,14 +17,20 @@ int main (int argc, char **argv) {
     const char SUCCESS[4] = "OK\n";
     const char FAILURE[5] = "ERR\n";
     const char EXECUTEPENDING[4] = "EP\n";
+    u_int16_t PORT;
+    char* SERVERADRESS;
   int create_socket;
   char buffer[BUF];
   struct sockaddr_in address;
   long size;
 
-  if( argc < 2 ){
-     printf("Usage: %s ServerAdresse\n", argv[0]);
+  if( argc < 3 ){
+     printf("Usage: %s <Port-number> <ServerAdresse>\n", argv[0]);
      exit(EXIT_FAILURE);
+  }
+    else{
+      PORT = (uint16_t)atoi(argv[1]);
+      SERVERADRESS = argv[2];
   }
 
   if ((create_socket = socket (AF_INET, SOCK_STREAM, 0)) == -1)
@@ -37,7 +42,7 @@ int main (int argc, char **argv) {
   memset(&address,0,sizeof(address));
   address.sin_family = AF_INET;
   address.sin_port = htons (PORT);
-  inet_aton (argv[1], &address.sin_addr);
+  inet_aton (SERVERADRESS, &address.sin_addr);
 
   if (connect ( create_socket, (struct sockaddr *) &address, sizeof (address)) == 0)
   {
