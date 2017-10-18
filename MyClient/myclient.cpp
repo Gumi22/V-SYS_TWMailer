@@ -16,13 +16,13 @@ int main (int argc, char **argv) {
     //ToDo: Put this in Config file
     const char SUCCESS[4] = "OK\n";
     const char FAILURE[5] = "ERR\n";
-    const char EXECUTEPENDING[4] = "EP\n";
+    //const char EXECUTEPENDING[4] = "EP\n";
     u_int16_t PORT;
     char* SERVERADRESS;
   int create_socket;
   char buffer[BUF];
   struct sockaddr_in address;
-  long size;
+  //long size;
 
   if( argc < 3 ){
      printf("Usage: %s <Port-number> <ServerAdresse>\n", argv[0]);

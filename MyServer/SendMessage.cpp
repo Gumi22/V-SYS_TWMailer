@@ -68,7 +68,7 @@ bool SendMessage::fillMe(string message) {
         switch(index){
             case 1:
                 ///first information for the server is the username, which is the sender
-                if(message.length() <= 9){
+                if(message.length() <= 9 && message.length() > 1){
                     sender = message;
                     index ++;
                     ///give the client the information about the next required input.
@@ -76,17 +76,17 @@ bool SendMessage::fillMe(string message) {
                     return true;
                 }
                 ///if the input is not valid - return false and give the client information about required form for the input.
-                statusMessage = "Invalid Sender - Max 8 Characters!";
+                statusMessage = "Invalid Sender - MIN 1 Character and MAX 8 Characters!!!";
                 return false;
             case 2:
                 ///second information the server needs is the username from the receiver
-                if(message.length() <= 9){
+                if(message.length() <= 9 && message.length() > 1){
                     receiver = message;
                     index ++;
                     statusMessage = "Subject:";
                     return true;
                 }
-                statusMessage = "Invalid Receiver - Max 8 Characters";
+                statusMessage = "Invalid Receiver - Min 1 Character andi Max 8 Characters";
                 return false;
             case 3:
                 ///check if the 3rd input is correct, has to be the subject and not longer as 80 characters
