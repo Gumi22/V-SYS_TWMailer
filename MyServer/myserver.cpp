@@ -17,7 +17,7 @@
 
 #define BUF 1024
 
-void createWorkingDirectories(string, string);
+void createWorkingDirectories(const char *, string);
 
 int main(int argc, char **argv) {
     //ToDo: Put this in Config file
@@ -34,7 +34,6 @@ int main(int argc, char **argv) {
     if (argc == 3) {
         PORT = atoi(argv[1]);
         MESSAGEDIR = argv[2];
-        cout << MESSAGEDIR << endl;
     } else {
         cout << "No Port or Path to Mailpool directory specified.\nUsage: myserver <port number> <path>\n";
         return EXIT_FAILURE;
@@ -174,10 +173,10 @@ int main(int argc, char **argv) {
 }
 
 //checks if directories already exist, if not - creates them
-void createWorkingDirectories(string msgdir, string usrdir) {
+void createWorkingDirectories(const char * msgdir, string usrdir) {
     //check mesages directory
-    if (!opendir(msgdir.c_str())) {
-        mkdir(msgdir.c_str(), 0777);
+    if (!opendir(msgdir)) {
+        mkdir(msgdir, 0777);
     }
     //ToDo: check user directory;
 }
