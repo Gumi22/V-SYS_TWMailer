@@ -12,19 +12,21 @@
 
 void receive(int fd, char *buf);
 
+bool connectSocket(int&, char*, u_int16_t, char*);
+
+
+
 int main (int argc, char **argv) {
     //ToDo: Put this in Config file
     const char SUCCESS[4] = "OK\n";
     const char FAILURE[5] = "ERR\n";
-    //const char EXECUTEPENDING[4] = "EP\n";
     u_int16_t PORT;
     char* SERVERADRESS;
   int create_socket;
   char buffer[BUF];
-  struct sockaddr_in address;
-  //long size;
 
-  if( argc < 3 ){
+
+  if( argc < 3 || argc > 3){
      printf("Usage: %s <Port-number> <ServerAdresse>\n", argv[0]);
      exit(EXIT_FAILURE);
   }
@@ -33,29 +35,10 @@ int main (int argc, char **argv) {
       SERVERADRESS = argv[2];
   }
 
-  if ((create_socket = socket (AF_INET, SOCK_STREAM, 0)) == -1)
-  {
-     perror("Socket error");
-     return EXIT_FAILURE;
+  if(!connectSocket(create_socket, SERVERADRESS, PORT, buffer)){
+      return EXIT_FAILURE;
   }
-  
-  memset(&address,0,sizeof(address));
-  address.sin_family = AF_INET;
-  address.sin_port = htons (PORT);
-  inet_aton (SERVERADRESS, &address.sin_addr);
 
-  if (connect ( create_socket, (struct sockaddr *) &address, sizeof (address)) == 0)
-  {
-      printf ("Connection with server (%s) established\n", inet_ntoa (address.sin_addr));
-      //expect a response;
-      receive(create_socket, buffer);
-      printf ("%s ", buffer);
-  }
-  else
-  {
-     perror("Connect error - no server available");
-     return EXIT_FAILURE;
-  }
     //connected, do something till user wishes to quit:
   do {
       //send command
@@ -96,10 +79,45 @@ int main (int argc, char **argv) {
   return EXIT_SUCCESS;
 }
 
+
+
+
 void receive(int fd, char *buf){
     long size=recv(fd,buf, BUF-1, 0);
     if (size>0)
     {
         buf[size]= '\0';
     }
+}
+
+
+
+
+bool connectSocket(int &create_socket, char* serveraddress, u_int16_t port, char *buf){
+    struct sockaddr_in address;
+
+    if ((create_socket = socket (AF_INET, SOCK_STREAM, 0)) == -1)
+    {
+        perror("Socket error");
+        return false;
+    }
+
+    memset(&address,0,sizeof(address));
+    address.sin_family = AF_INET;
+    address.sin_port = htons (port);
+    inet_aton (serveraddress, &address.sin_addr);
+
+    if (connect ( create_socket, (struct sockaddr *) &address, sizeof (address)) == 0)
+    {
+        printf ("Connection with server (%s) established\n", inet_ntoa (address.sin_addr));
+        //expect a response;
+        receive(create_socket, buf);
+        printf ("%s ", buf);
+    }
+    else
+    {
+        perror("Connect error - no server available");
+        return false;
+    }
+    return true;
 }
