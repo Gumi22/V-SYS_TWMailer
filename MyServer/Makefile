@@ -1,5 +1,5 @@
 NAME := MyServer
-FLAGS := -ggdb -g -Wall -Werror -O -std=c++11
+FLAGS := -ggdb -g -Wall -Werror -O -std=c++11 -pthread
 CC := g++
 
 all: ${NAME}

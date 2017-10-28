@@ -6,5 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(SOURCE_FILES_CLIENT MyClient/myclient.cpp)
 add_executable(V_SYS_TWMailer_CLIENT ${SOURCE_FILES_CLIENT})
 
-set(SOURCE_FILES_SERVER MyServer/myserver.cpp MyServer/ServerOperation.cpp MyServer/ServerOperation.h MyServer/DeleteMessage.cpp MyServer/DeleteMessage.h MyServer/ReadMessage.cpp MyServer/ReadMessage.h MyServer/ListMessage.cpp MyServer/ListMessage.h MyServer/SendMessage.cpp MyServer/SendMessage.h)
+set(SOURCE_FILES_SERVER MyServer/myserver.cpp MyServer/ServerOperation.cpp MyServer/ServerOperation.h MyServer/DeleteMessage.cpp MyServer/DeleteMessage.h MyServer/ReadMessage.cpp MyServer/ReadMessage.h MyServer/ListMessage.cpp MyServer/ListMessage.h MyServer/SendMessage.cpp MyServer/SendMessage.h MyServer/ClientHandler.cpp MyServer/ClientHandler.h MyServer/mySocket.cpp MyServer/mySocket.h)
+set(GCC_COVERAGE_LINK_FLAGS -pthread)
+set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS})
 add_executable(V_SYS_TWMailer_SERVER ${SOURCE_FILES_SERVER})

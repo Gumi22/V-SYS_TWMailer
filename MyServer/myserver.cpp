@@ -14,10 +14,14 @@
 #include "ReadMessage.h"
 #include "SendMessage.h"
 #include "DeleteMessage.h"
+#include "mySocket.h"
+#include "ClientHandler.h"
 
 #define BUF 1024
 
 void createWorkingDirectories(const char *, string);
+
+int createSocket();
 
 int main(int argc, char **argv) {
     //ToDo: Put this in Config file
@@ -26,7 +30,12 @@ int main(int argc, char **argv) {
     const char SUCCESS[4] = "OK\n";
     const char FAILURE[5] = "ERR\n";
     const char EXECUTEPENDING[4] = "EP\n";
+
     int PORT;
+    char buffer[BUF];
+    long size;
+
+    ClientHandler* myClientHandler;
 
     ServerOperation *command; //command the server executes
 
@@ -34,6 +43,7 @@ int main(int argc, char **argv) {
     if (argc == 3) {
         PORT = atoi(argv[1]);
         MESSAGEDIR = argv[2];
+        myClientHandler = new ClientHandler(argv[2]);
     } else {
         cout << "No Port or Path to Mailpool directory specified.\nUsage: myserver <port number> <path>\n";
         return EXIT_FAILURE;
@@ -43,39 +53,36 @@ int main(int argc, char **argv) {
     createWorkingDirectories(MESSAGEDIR, USERDIR);
 
     //create socket
-    int create_socket, new_socket;
-    socklen_t addrlen;
-    char buffer[BUF];
-    long size;
-    struct sockaddr_in address, cliaddress;
-
-    create_socket = socket(AF_INET, SOCK_STREAM, 0);
-
-    memset(&address, 0, sizeof(address));
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
-
-    if (bind(create_socket, (struct sockaddr *) &address, sizeof(address)) != 0) {
-        perror("bind error");
+    mySocket* mySoc;
+    try{
+        mySoc = new mySocket(PORT);
+    }
+    catch(char* param){
+        cout << "Exception thrown: " << param << endl;
         return EXIT_FAILURE;
     }
-    listen(create_socket, 5);
+    int new_socket;
 
-    addrlen = sizeof(struct sockaddr_in);
+    socklen_t addrlen = sizeof(struct sockaddr_in);
+    struct sockaddr_in cliaddress;
 
     //start server loop:
     while (true) {
         printf("Waiting for connections...\n");
-        new_socket = accept(create_socket, (struct sockaddr *) &cliaddress, &addrlen);
+        new_socket = accept(mySoc->getSocket(), (struct sockaddr *) &cliaddress, &addrlen);
         if (new_socket > 0) {
             printf("Client connected from %s:%d...\n", inet_ntoa(cliaddress.sin_addr), ntohs(cliaddress.sin_port));
             strcpy(buffer, "Welcome to myserver, Please enter your command:\n");
             send(new_socket, buffer, strlen(buffer), 0);
         }
         //Client connected, start command execution loop:
-        bool commandMatched = false;
-        string commandResult = "";
+
+        std::thread clientThread = myClientHandler->handleThisClient(new_socket);
+        clientThread.detach();
+
+/*
+        bool commandMatched;
+        string commandResult;
         do {
             //get command
             size = recv(new_socket, buffer, BUF - 1, 0);
@@ -167,14 +174,15 @@ int main(int argc, char **argv) {
             }
         } while (strncmp(buffer, "quit", 4) != 0);
         close(new_socket);
+        */
     }
-    close(create_socket);
+    delete(mySoc);
     return EXIT_SUCCESS;
 }
 
 //checks if directories already exist, if not - creates them
 void createWorkingDirectories(const char * msgdir, string usrdir) {
-    //check mesages directory
+    //check messages directory
     if (!opendir(msgdir)) {
         mkdir(msgdir, 0777);
     }
