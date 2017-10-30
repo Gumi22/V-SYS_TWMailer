@@ -22,10 +22,10 @@ protected:
     string statusMessage;
     //ToDo: Put this in Config file
     const char * MESSAGEDIR;
-    const char USERDIR[6] = "users";
-    const char SUCCESS[4] = "OK\n";
-    const char FAILURE[5] = "ERR\n";
-    const char EXECUTEPENDING[4] = "EP\n";
+    const char * USERDIR = "users";
+    const char * SUCCESS = "OK\n";
+    const char * FAILURE = "ERR\n";
+    const char * EXECUTEPENDING = "EP\n";
 
 
 public:
