@@ -7,12 +7,21 @@
 
 #include <string>
 #include <iostream>
-#include "ClientHandler.h"
+#include "ServerOperation.h"
 
-class LdapLogin  {
+class LdapLogin : public ServerOperation{
+private:
+    string username;
+    const char * password;
+    int parameter_count;
 
 public:
-    std::string login(char* username, char* password);
+
+    LdapLogin(const char* directory);
+    std::string login(std::string username, const char* password);
+
+    virtual bool fillMe(string);
+    virtual string execute();
 
 };
 

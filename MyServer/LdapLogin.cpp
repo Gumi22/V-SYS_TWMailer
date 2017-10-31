@@ -12,15 +12,38 @@
 #define BIND_USER NULL        /* anonymous bind with user and pw NULL */
 #define BIND_PW NULL
 
-std::string LdapLogin::login(char * username, char* password) {
+
+LdapLogin::LdapLogin(const char* directory) : ServerOperation(directory) {
+    statusMessage = "Username: ";
+    parameter_count = 0;
+}
+
+
+bool LdapLogin::fillMe(string input) {
+    switch(parameter_count){
+        case 0:
+            username = input;
+            parameter_count ++;
+            statusMessage = "Password: ";
+            break;
+        case 1:
+            password = input.c_str();
+            break;
+    }
+    return true;
+}
+
+std::string LdapLogin::login(string username, const char* password) {
     LDAP *ld;            /* LDAP resource handle */
     LDAPMessage *result, *e;    /* LDAP result handle */
     BerElement *ber;        /* array of attributes */
     char *attribute;
     char **vals;
-    char * FILTER = username;
+    std::string filter = "(uid=" + username + ")";
+    const char * FILTER = filter.c_str();
+    char * dn;
 
-    int i, rc = 0;
+    int rc = 0;
 
     char *attribs[3];        /* attribute array for search */
 
@@ -32,7 +55,7 @@ std::string LdapLogin::login(char * username, char* password) {
     /* setup LDAP connection */
     if ((ld = ldap_init(LDAP_HOST, LDAP_PORT)) == NULL) {
         perror("ldap_init failed");
-        return "ERR\n";
+        return FAILURE;
     }
 
     printf("connected to LDAP server %s on port %d\n", LDAP_HOST, LDAP_PORT);
@@ -42,7 +65,7 @@ std::string LdapLogin::login(char * username, char* password) {
 
     if (rc != LDAP_SUCCESS) {
         fprintf(stderr, "LDAP error: %s\n", ldap_err2string(rc));
-        return "ERR\n";
+        return FAILURE;
     } else {
         printf("bind successful\n");
     }
@@ -52,43 +75,36 @@ std::string LdapLogin::login(char * username, char* password) {
 
     if (rc != LDAP_SUCCESS) {
         fprintf(stderr, "LDAP search error: %s\n", ldap_err2string(rc));
-        return "ERR\n";
+        return FAILURE;
     }
 
     printf("Total results: %d\n", ldap_count_entries(ld, result));
 
-    for (e = ldap_first_entry(ld, result); e != NULL; e = ldap_next_entry(ld, e)) {
-        printf("DN: %s\n", ldap_get_dn(ld, e));
+    e = ldap_first_entry(ld, result);
+    dn = ldap_get_dn(ld, e);
 
-        /* Now print the attributes and values of each found entry */
+    rc = ldap_simple_bind(ld, dn, password);
 
-        for (attribute = ldap_first_attribute(ld, e, &ber);
-             attribute != NULL; attribute = ldap_next_attribute(ld, e, ber)) {
-            if ((vals = ldap_get_values(ld, e, attribute)) != NULL) {
-                for (i = 0; vals[i] != NULL; i++) {
-                    printf("\t%s: %s\n", attribute, vals[i]);
-                }
-                /* free memory used to store the values of the attribute */
-                ldap_value_free(vals);
-            }
-            /* free memory used to store the attribute */
-            ldap_memfree(attribute);
-        }
-        /* free memory used to store the value structure */
-        if (ber != NULL) ber_free(ber, 0);
+    if(rc == LDAP_SUCCESS){
+        /* free memory used for result */
+        ldap_msgfree(result);
+        free(attribs[0]);
+        free(attribs[1]);
 
-        printf("\n");
+        ldap_unbind(ld);
+        return SUCCESS;
+    }else{
+        /* free memory used for result */
+        ldap_msgfree(result);
+        free(attribs[0]);
+        free(attribs[1]);
+
+        ldap_unbind(ld);
+        return FAILURE;
     }
-
-    /* free memory used for result */
-    ldap_msgfree(result);
-    free(attribs[0]);
-    free(attribs[1]);
-    printf("LDAP search suceeded\n");
-
-    ldap_unbind(ld);
-
-    return "OK\n";
-
-
 }
+
+string LdapLogin::execute() {
+    login(username, password);
+}
+

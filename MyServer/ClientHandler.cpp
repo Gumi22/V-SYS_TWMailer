@@ -4,6 +4,7 @@
 
 
 #include "ClientHandler.h"
+#include "LdapLogin.h"
 
 ClientHandler::ClientHandler(const char * messagedir) {
     MESSAGEDIR = messagedir;
@@ -42,7 +43,9 @@ void ClientHandler::clientLoop(int sock) {
                 command = new ReadMessage(MESSAGEDIR);
             } else if (strncasecmp(buffer, "del", 3) == 0) {
                 command = new DeleteMessage(MESSAGEDIR);
-            } else if (strncasecmp(buffer, "quit", 4) == 0) {
+            } else if (strncasecmp(buffer, "login", 5) == 0){
+                command = new LdapLogin(MESSAGEDIR);
+            }else if (strncasecmp(buffer, "quit", 4) == 0) {
                 //quit
                 //ToDo: make quit a real command :D
                 char message[] = "placeholder";
