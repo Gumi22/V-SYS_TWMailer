@@ -3,7 +3,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -11,9 +10,6 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include "ListMessage.h"
-#include "ReadMessage.h"
-#include "SendMessage.h"
-#include "DeleteMessage.h"
 #include "mySocket.h"
 #include "ClientHandler.h"
 
@@ -30,11 +26,9 @@ int main(int argc, char **argv) {
 
     int PORT;
     char buffer[BUF];
-    long size;
+    //long size;
 
     ClientHandler* myClientHandler;
-
-    ServerOperation *command; //command the server executes
 
     //parse arguments
     if (argc == 3) {
