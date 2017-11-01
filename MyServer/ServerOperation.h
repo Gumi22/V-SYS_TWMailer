@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <string>
 #include <map>
-#include "LdapLogin.h"
 
 
 using namespace std;
@@ -26,13 +25,13 @@ protected:
     const char * SUCCESS = "OK\n";
     const char * FAILURE = "ERR\n";
     const char * EXECUTEPENDING = "EP\n";
-    LdapLogin *UserAccount;
+    //LdapLogin *UserAccount;
 
 
 public:
     //Constructor
     ServerOperation(const char * directory);
-    ServerOperation(const char * directory, LdapLogin *User);
+    //ServerOperation(const char * directory, LdapLogin *User);
 
     //fillMe fills internal arguments of operation with a string.
     //returns true id next line needs to be read and filled and false if Operation got all needed arguments or failed.

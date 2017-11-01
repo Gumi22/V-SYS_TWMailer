@@ -20,7 +20,7 @@ LdapLogin::LdapLogin(const char* directory) : ServerOperation(directory) {
 }
 
 
-bool LdapLogin::fillMe(string input) {
+bool LdapLogin::fillMe(std::string input) {
     switch(parameter_count){
         case 0:
             if(input.length() <= 9 && input.length() > 1) {
@@ -52,7 +52,7 @@ bool LdapLogin::fillMe(string input) {
     }
 }
 
-std::string LdapLogin::login(string username, const char* password) {
+std::string LdapLogin::login(std::string username, const char* password) {
     LDAP *ld;            /* LDAP resource handle */
     LDAPMessage *result, *e;    /* LDAP result handle */
     BerElement *ber;        /* array of attributes */

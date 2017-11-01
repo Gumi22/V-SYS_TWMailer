@@ -14,16 +14,16 @@
 #include <fstream>
 
 
-//SendMessage::SendMessage(const char *directory) : ServerOperation(directory) {
-//    index = 1;
-//    statusMessage = "Sender:";
-//}
-
-SendMessage::SendMessage(const char *directory, LdapLogin* User) :ServerOperation(directory, User) {
+SendMessage::SendMessage(const char *directory) : ServerOperation(directory) {
     index = 1;
-    statusMessage = "Receiver: ";
-
+    statusMessage = "Sender:";
 }
+
+//SendMessage::SendMessage(const char *directory, LdapLogin* User) :ServerOperation(directory, User) {
+//    index = 1;
+//    statusMessage = "Receiver: ";
+//
+//}
 
 string SendMessage::execute() {
     std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >(
