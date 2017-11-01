@@ -16,21 +16,39 @@
 LdapLogin::LdapLogin(const char* directory) : ServerOperation(directory) {
     statusMessage = "Username: ";
     parameter_count = 0;
+    login_count = 0;
 }
 
 
 bool LdapLogin::fillMe(string input) {
     switch(parameter_count){
         case 0:
-            username = input;
-            parameter_count ++;
-            statusMessage = "Password: ";
-            break;
+            if(input.length() <= 9 && input.length() > 1) {
+                username = input;
+                parameter_count++;
+                statusMessage = "Password: ";
+                return true;
+            }else{
+                statusMessage = "Invalid Sender - MIN 1 Character and MAX 8 Characters!!!";
+                return false;
+            }
         case 1:
-            password = input.c_str();
-            break;
+            if(input.length() > 4) {
+                parameter_count ++;
+                password = input.c_str();
+                return true;
+            }else{
+                statusMessage = "Password need to be MIN 4 characters!!";
+                return false;
+            }
     }
-    return true;
+    if(parameter_count == 2){
+        statusMessage = EXECUTEPENDING;
+        return false;
+    }else{
+        statusMessage = "Invalid Input! LoginProcess canceled!";
+        return false;
+    }
 }
 
 std::string LdapLogin::login(string username, const char* password) {
@@ -85,26 +103,32 @@ std::string LdapLogin::login(string username, const char* password) {
 
     rc = ldap_simple_bind(ld, dn, password);
 
-    if(rc == LDAP_SUCCESS){
-        /* free memory used for result */
-        ldap_msgfree(result);
-        free(attribs[0]);
-        free(attribs[1]);
+    /* free memory used for result */
+    ldap_msgfree(result);
+    free(attribs[0]);
+    free(attribs[1]);
 
-        ldap_unbind(ld);
+    ldap_unbind(ld);
+
+    if(rc == LDAP_SUCCESS){
         return SUCCESS;
     }else{
-        /* free memory used for result */
-        ldap_msgfree(result);
-        free(attribs[0]);
-        free(attribs[1]);
-
-        ldap_unbind(ld);
         return FAILURE;
     }
 }
 
 string LdapLogin::execute() {
-    login(username, password);
+    if(login_count < 3){
+        login(username, password);
+    }else{
+        statusMessage = "Wrong Username or Password! IP is banned! Try it later again!";
+        return FAILURE;
+    }
+
+    login_count ++;
+}
+
+string LdapLogin::Get_Username() {
+    return username;
 }
 
