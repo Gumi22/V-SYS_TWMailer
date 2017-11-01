@@ -122,15 +122,16 @@ string LdapLogin::execute() {
     login_count ++;
     if(login_count < 4){
         if(login(username, password) == SUCCESS){
-            statusMessage = "Login succesfull!";
+            statusMessage = SUCCESS;
             is_LoggedIn = true;
+            return "login successful!";
         }else{
-            statusMessage = "Login Failed!";
-            return FAILURE;
+            statusMessage = FAILURE;
+            return "Login failed!";
         }
     }else{
         statusMessage = "Wrong Username or Password! IP is banned! Try it later again!";
-        return FAILURE;
+        return "Failed third time!";
     }
 }
 
