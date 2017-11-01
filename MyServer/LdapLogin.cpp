@@ -36,6 +36,7 @@ bool LdapLogin::fillMe(string input) {
             if(input.length() > 4) {
                 parameter_count ++;
                 password = input.c_str();
+                statusMessage = "Login in Progress!";
                 return true;
             }else{
                 statusMessage = "Password need to be MIN 4 characters!!";
@@ -118,17 +119,26 @@ std::string LdapLogin::login(string username, const char* password) {
 }
 
 string LdapLogin::execute() {
-    if(login_count < 3){
-        login(username, password);
+    login_count ++;
+    if(login_count < 4){
+        if(login(username, password) == SUCCESS){
+            statusMessage = "Login succesfull!";
+            is_LoggedIn = true;
+        }else{
+            statusMessage = "Login Failed!";
+            return FAILURE;
+        }
     }else{
         statusMessage = "Wrong Username or Password! IP is banned! Try it later again!";
         return FAILURE;
     }
-
-    login_count ++;
 }
 
 string LdapLogin::Get_Username() {
     return username;
+}
+
+bool LdapLogin::Get_IsLoggedIn() {
+    return is_LoggedIn;
 }
 

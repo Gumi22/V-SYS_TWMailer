@@ -11,6 +11,7 @@
 
 class LdapLogin : public ServerOperation{
 private:
+    bool is_LoggedIn = false;
     string username;
     const char * password;
     int parameter_count, login_count;
@@ -23,6 +24,7 @@ public:
     virtual bool fillMe(string);
     virtual string execute();
     string Get_Username();
+    bool Get_IsLoggedIn();
 
 };
 

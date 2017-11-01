@@ -9,12 +9,20 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include "SendMessage.h"
+#include "LdapLogin.h"
 #include <chrono>
 #include <fstream>
 
-SendMessage::SendMessage(const char *directory) : ServerOperation(directory) {
+
+//SendMessage::SendMessage(const char *directory) : ServerOperation(directory) {
+//    index = 1;
+//    statusMessage = "Sender:";
+//}
+
+SendMessage::SendMessage(const char *directory, LdapLogin* User) :ServerOperation(directory, User) {
     index = 1;
-    statusMessage = "Sender:";
+    statusMessage = "Receiver: ";
+
 }
 
 string SendMessage::execute() {
@@ -113,3 +121,5 @@ bool SendMessage::fillMe(string message) {
         return false;
     }
 }
+
+

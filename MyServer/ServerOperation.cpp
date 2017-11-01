@@ -10,5 +10,14 @@ ServerOperation::ServerOperation(const char * directory) {
     MESSAGEDIR = directory;
 }
 
+ServerOperation::ServerOperation(const char *directory, LdapLogin* User) {
+    statusMessage = "expecting paramenter.\n";
+    MESSAGEDIR = directory;
+    UserAccount = User;
+
+}
+
 string ServerOperation::getStatus() {return statusMessage;}
+
+
 

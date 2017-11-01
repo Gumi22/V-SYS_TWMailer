@@ -6,12 +6,15 @@
 #define V_SYS_TWMAILER_SENDMESSAGE_H
 
 
+#include <ldap.h>
 #include "ServerOperation.h"
+#include "LdapLogin.h"
 
 class SendMessage : public ServerOperation{
 
 public:
-    explicit SendMessage(const char * directory);
+    //explicit SendMessage(const char * directory);
+    SendMessage(const char * directory, LdapLogin *User);
 
     virtual bool fillMe(string Message);
 

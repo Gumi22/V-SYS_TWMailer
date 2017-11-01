@@ -18,6 +18,7 @@ void ClientHandler::clientLoop(int sock) {
 
     //Client connected, start command execution loop:
 
+    LdapLogin *UserLogin;
     ServerOperation *command; //command the server executes
     bool commandMatched;
 
@@ -36,7 +37,11 @@ void ClientHandler::clientLoop(int sock) {
 
             //create the received command depending on string that was sent
             if (strncasecmp(buffer, "send", 4) == 0) {
-                command = new SendMessage(MESSAGEDIR);
+                if(UserLogin == nullptr){
+                    //TODO: Fehlermeldung ausgeben weil, nicht angemeldet. Bei erfolgreichen test, auf andere commands ausweiten
+                }else{
+                    command = new SendMessage(MESSAGEDIR, UserLogin);
+                }
             } else if (strncasecmp(buffer, "list", 4) == 0) {
                 command = new ListMessage(MESSAGEDIR);
             } else if (strncasecmp(buffer, "read", 4) == 0) {
@@ -44,7 +49,7 @@ void ClientHandler::clientLoop(int sock) {
             } else if (strncasecmp(buffer, "del", 3) == 0) {
                 command = new DeleteMessage(MESSAGEDIR);
             } else if (strncasecmp(buffer, "login", 5) == 0){
-                command = new LdapLogin(MESSAGEDIR);
+                UserLogin = new LdapLogin(MESSAGEDIR);
             }else if (strncasecmp(buffer, "quit", 4) == 0) {
                 //quit
                 //ToDo: make quit a real command :D
