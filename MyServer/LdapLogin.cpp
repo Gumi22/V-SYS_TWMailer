@@ -9,8 +9,6 @@
 #define LDAP_PORT 389
 #define SEARCHBASE "dc=technikum-wien,dc=at"
 #define SCOPE LDAP_SCOPE_SUBTREE
-#define BIND_USER NULL        /* anonymous bind with user and pw NULL */
-#define BIND_PW NULL
 
 
 LdapLogin::LdapLogin(const char* directory) : ServerOperation(directory) {
@@ -46,13 +44,14 @@ bool LdapLogin::fillMe(std::string input) {
     }
 }
 
-std::string LdapLogin::login(std::string username, char* password) {
+bool LdapLogin::login(std::string username, char* password) {
     LDAP *ld;            /* LDAP resource handle */
     LDAPMessage *result, *e;    /* LDAP result handle */;
     std::string filter = "(uid=" + username + ")";
-    cout << filter << endl;
-    cout << username << password << endl;
+    ///cout << filter << endl;
+    ///cout << username << password << endl;
     const char * FILTER = filter.c_str();
+    ///cout << FILTER << endl;
     char * dn;
 
     int rc = 0;
@@ -66,18 +65,16 @@ std::string LdapLogin::login(std::string username, char* password) {
 
     /* setup LDAP connection */
     if ((ld = ldap_init(LDAP_HOST, LDAP_PORT)) == NULL) {
-        perror("ldap_init failed");
-        return FAILURE;
+        statusMessage = FAILURE;
+        return false;
     }
 
-    printf("connected to LDAP server %s on port %d\n", LDAP_HOST, LDAP_PORT);
-
     /* anonymous bind */
-    rc = ldap_simple_bind_s(ld, BIND_USER, BIND_PW);
+    rc = ldap_simple_bind_s(ld, NULL, NULL);
 
     if (rc != LDAP_SUCCESS) {
-        fprintf(stderr, "LDAP error: %s\n", ldap_err2string(rc));
-        return FAILURE;
+        statusMessage = FAILURE;
+        return false;
     } else {
         printf("bind successful\n");
     }
@@ -86,21 +83,26 @@ std::string LdapLogin::login(std::string username, char* password) {
     rc = ldap_search_s(ld, SEARCHBASE, SCOPE, FILTER, attribs, 0, &result);
 
     if (rc != LDAP_SUCCESS) {
-        fprintf(stderr, "LDAP search error: %s\n", ldap_err2string(rc));
-        return FAILURE;
+        statusMessage = FAILURE;
+        return false;
     }
 
+    cout << ldap_count_entries(ld, result)  << endl;
     if(ldap_count_entries(ld,result) < 1){
-        return FAILURE;
+        statusMessage = FAILURE;
+        return false;
     }
 
     e = ldap_first_entry(ld, result);
     dn = ldap_get_dn(ld, e);
-
-    rc = ldap_simple_bind(ld, dn, password);
-
+    cout << dn << endl;
+    cout << password << endl;
+    rc = ldap_simple_bind_s(ld, dn, password);
+    ///cout << rc << endl;
     if(rc != LDAP_SUCCESS) {
-        return FAILURE;
+        cout << ldap_err2string(rc) << endl;
+        statusMessage = FAILURE;
+        return false;
     }
     /* free memory used for result */
     ldap_msgfree(result);
@@ -108,16 +110,16 @@ std::string LdapLogin::login(std::string username, char* password) {
     free(attribs[1]);
 
     ldap_unbind(ld);
-    return SUCCESS;
+    statusMessage = SUCCESS;
+    return true;
 }
 
 string LdapLogin::execute() {
-    if (login(username, password) == SUCCESS) {
-        statusMessage = SUCCESS;
+    login(username, password);
+    if (statusMessage == SUCCESS) {
         is_LoggedIn = true;
         return "login successful!";
     } else {
-        statusMessage = FAILURE;
         return "Login failed!";
     }
 

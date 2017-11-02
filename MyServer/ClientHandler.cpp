@@ -18,7 +18,6 @@ void ClientHandler::clientLoop(int sock) {
 
     //Client connected, start command execution loop:
 
-//    LdapLogin *UserLogin;
     ServerOperation *command; //command the server executes
     bool commandMatched;
 
@@ -138,4 +137,3 @@ void ClientHandler::clientLoop(int sock) {
     } while (strncmp(buffer, "quit", 4) != 0);
     close(sock);
 }
-

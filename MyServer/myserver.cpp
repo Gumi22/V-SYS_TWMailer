@@ -15,14 +15,13 @@
 
 #define BUF 1024
 
-void createWorkingDirectories(const char *, string);
+void createWorkingDirectories(char *);
 
 int createSocket();
 
 int main(int argc, char **argv) {
     //ToDo: Put this in Config file
-    const char * MESSAGEDIR;
-    const char * USERDIR = "users";
+    char * MESSAGEDIR;
 
     int PORT;
     char buffer[BUF];
@@ -41,7 +40,7 @@ int main(int argc, char **argv) {
     }
 
     //create needed directories
-    createWorkingDirectories(MESSAGEDIR, USERDIR);
+    createWorkingDirectories(MESSAGEDIR);
 
     //create socket
     mySocket* mySoc;
@@ -77,7 +76,7 @@ int main(int argc, char **argv) {
 }
 
 //checks if directories already exist, if not - creates them
-void createWorkingDirectories(const char * msgdir, string usrdir) {
+void createWorkingDirectories(char * msgdir) {
     //check messages directory
     if (!opendir(msgdir)) {
         mkdir(msgdir, 0777);

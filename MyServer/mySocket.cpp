@@ -4,7 +4,7 @@
 
 #include "mySocket.h"
 
-mySocket::mySocket(const int port) {
+mySocket::mySocket(int port) {
     struct sockaddr_in address;
 
     mySoc = socket(AF_INET, SOCK_STREAM, 0);

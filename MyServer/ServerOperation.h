@@ -22,10 +22,9 @@ protected:
     string username;
     //ToDo: Put this in Config file
     const char * MESSAGEDIR;
-    const char * USERDIR = "users";
-    const char * SUCCESS = "OK\n";
-    const char * FAILURE = "ERR\n";
-    const char * EXECUTEPENDING = "EP\n";
+    const char SUCCESS[4] = "OK\n";
+    const char FAILURE[5] = "ERR\n";
+    const char EXECUTEPENDING[4] = "EP\n";
 
 
 public:
@@ -38,7 +37,7 @@ public:
     virtual bool fillMe(string) = 0;
     virtual bool Get_IsLoggedIn() = 0;
 
-    virtual string getStatus();
+    string getStatus();
 
     //Executes the operation returns the server response as a string
     virtual string execute() = 0;

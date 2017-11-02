@@ -19,7 +19,7 @@ private:
 public:
     ~LdapLogin();
     LdapLogin(const char* directory);
-    std::string login(std::string username, char* password);
+    bool login(std::string username, char* password);
 
     bool fillMe(std::string);
     std::string execute();

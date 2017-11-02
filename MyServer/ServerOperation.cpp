@@ -14,8 +14,8 @@ string ServerOperation::getStatus() {return statusMessage;}
 
 ServerOperation::ServerOperation(const char *directory, string _username) {
     username = _username;
-    statusMessage = "Expecting Parameter!";
     MESSAGEDIR = directory;
+    statusMessage = "Expecting Parameter!";
 }
 
 
