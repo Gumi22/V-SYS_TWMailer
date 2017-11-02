@@ -35,6 +35,11 @@ bool LdapLogin::fillMe(std::string input) {
                 parameter_count ++;
                 password = new char[input.length() + 1];
                 strcpy(password, input.c_str());
+                for(int i = 0; i < input.length(); i++){
+                    if(password[i] == '\0' || password[i] == '\n') {
+                        memmove(&password[i], &password[i + 1], strlen(password) - i);
+                    }
+                }
                 statusMessage = EXECUTEPENDING;
                 return false;
             }else{
@@ -115,8 +120,8 @@ bool LdapLogin::login(std::string username, char* password) {
 }
 
 string LdapLogin::execute() {
-    login(username, password);
-    if (statusMessage == SUCCESS) {
+    bool check = login(username, password);
+    if (check) {
         is_LoggedIn = true;
         return "login successful!";
     } else {

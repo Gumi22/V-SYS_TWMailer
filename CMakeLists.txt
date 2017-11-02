@@ -13,3 +13,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_FLAGS}")
 add_executable(V_SYS_TWMailer_SERVER ${SOURCE_FILES_SERVER})
 target_link_libraries(V_SYS_TWMailer_SERVER /usr/lib/x86_64-linux-gnu/libldap.so)
 target_link_libraries(V_SYS_TWMailer_SERVER /usr/lib/x86_64-linux-gnu/liblber.so)
+
+
+
+
