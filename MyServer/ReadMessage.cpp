@@ -6,28 +6,17 @@
 #include <dirent.h>
 #include <fstream>
 
-ReadMessage::ReadMessage(const char * directory) : ServerOperation(directory) {
+ReadMessage::ReadMessage(const char * directory, string username) : ServerOperation(directory, username) {
+    unsigned long end = username.find('\n');
+    username = username.substr(0,end);
     ParameterCount = 0;
     MessageNumber = 0; //give invalid message number at beginning
-    statusMessage = "User:";
+    statusMessage = "Message-number: ";
 }
 
 
 bool ReadMessage::fillMe(string parameter) {
-    //fill the needed parameter
     if(ParameterCount == 0){
-        if(parameter.length() <= 9 && parameter.length() > 1){ //is the Username given 1-8 chars long?
-            User = parameter;
-            User.pop_back();
-            ParameterCount ++;
-            statusMessage = "Message-number:";
-        }
-        else{
-            statusMessage = "Invalid User - Max 8 Characters!";
-            return false;
-        }
-    }
-    else if(ParameterCount == 1){
         if(!parameter.empty() && isdigit(parameter[0]) && parameter[0] != '0'){ //is the parameter even a number bigger than 0?
             MessageNumber = stoi(parameter);
             ParameterCount ++;
@@ -40,13 +29,13 @@ bool ReadMessage::fillMe(string parameter) {
     }
 
     //check if ready and return true if != 2 and false if all parameters were given
-    return ParameterCount != 2;
+    return ParameterCount != 1;
 }
 
 string ReadMessage::execute() {
     string result = "";
     int count = 0;
-    string dir = string(MESSAGEDIR) + "/" + User;
+    string dir = string(MESSAGEDIR) + "/" + username;
 
     DIR* userDir = opendir(dir.c_str()); //Open User Directory
 
@@ -58,7 +47,7 @@ string ReadMessage::execute() {
     if(userDir == nullptr){
         statusMessage = FAILURE;
         closedir(userDir);
-        return "No such User \"" + User + "\" found\n";
+        return "No such User \"" + username + "\" found\n";
     }
 
     //while directory isn't empty or didn't reach right file keep looking:

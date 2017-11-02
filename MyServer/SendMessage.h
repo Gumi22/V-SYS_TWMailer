@@ -13,15 +13,18 @@
 class SendMessage : public ServerOperation{
 
 public:
-    explicit SendMessage(const char * directory);
+    explicit SendMessage(const char * directory, string username);
     //SendMessage(const char * directory, LdapLogin *User);
 
-    virtual bool fillMe(string Message);
+    bool fillMe(string Message);
 
-    virtual string execute();
+    string execute();
+
+    string Get_Username(){}
+    bool Get_IsLoggedIn(){};
 
 private:
-    string sender, subject, message_final, receiver;
+    string subject, message_final, receiver;
     int index;
 };
 

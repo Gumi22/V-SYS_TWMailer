@@ -6,11 +6,10 @@
 #include <fstream>
 #include "DeleteMessage.h"
 
-DeleteMessage::DeleteMessage(const char * directory) : ServerOperation(directory) {
+DeleteMessage::DeleteMessage(const char * directory, string username) : ServerOperation(directory, username) {
     parameter_count = 0;
     chosen_message = 0;
-    username = "";
-    statusMessage = "User:";
+    statusMessage = "Message-number: ";
 }
 
 bool DeleteMessage::fillMe(string message) {
@@ -18,20 +17,6 @@ bool DeleteMessage::fillMe(string message) {
 
     switch(parameter_count){
         case 0:
-            ///first parameter, check if valid input for a userdirectory
-            if(message.length() <= 9 && message.length() > 0){
-                parameter_count ++;
-                username = message;
-                username.pop_back();
-                ///give user the information to next input, if everything went well
-                statusMessage = "Message-number:";
-                return true;
-            }else {
-                ///if invalid input, send the information to the client and return false
-                statusMessage = "invalid username - Max 8 Characters!";
-                return false;
-            }
-        case 1:
             ///check if second input is valid, if yes save the messagenumber.
             if(!message.empty() && isdigit(message[0]) && message[0] != '0'){
                 chosen_message = stoi(message);
@@ -47,6 +32,7 @@ bool DeleteMessage::fillMe(string message) {
             statusMessage = "Fatal Error! Parameter is not set! Connection closed";
             return false;
     }
+
 }
 
 string DeleteMessage::execute() {

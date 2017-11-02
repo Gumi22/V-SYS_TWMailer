@@ -11,9 +11,9 @@
 class ListMessage : public ServerOperation{
 public:
     //Constructor
-    ListMessage(const char * directory);
+    ListMessage(const char * directory, string username);
 
-    virtual bool fillMe(string);
+    bool fillMe(string);
 
     //Searches for messages in specified Folder and lists them:
     //  <Number of Messages for specified User ?(0 if none were found)> \n
@@ -21,11 +21,10 @@ public:
     //  <subject 2> \n
     //  ...
     //  <subject N> \n
-    virtual string execute();
+    string execute();
 
-private:
-    //Parses the input parameters
-    string User;
+    string Get_Username(){}
+    bool Get_IsLoggedIn(){};
 };
 
 

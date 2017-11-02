@@ -16,7 +16,6 @@
 LdapLogin::LdapLogin(const char* directory) : ServerOperation(directory) {
     statusMessage = "Username: ";
     parameter_count = 0;
-    login_count = 0;
 }
 
 
@@ -24,41 +23,35 @@ bool LdapLogin::fillMe(std::string input) {
     switch(parameter_count){
         case 0:
             if(input.length() <= 9 && input.length() > 1) {
-                username = input;
+                unsigned long end = input.find('\n');
+                username = input.substr(0,end);
                 parameter_count++;
                 statusMessage = "Password: ";
                 return true;
             }else{
-                statusMessage = "Invalid Sender - MIN 1 Character and MAX 8 Characters!!!";
+                statusMessage = "Invalid Username - MIN 1 Character and MAX 8 Characters!!!";
                 return false;
             }
         case 1:
             if(input.length() > 4) {
                 parameter_count ++;
-                password = input.c_str();
-                statusMessage = "Login in Progress!";
-                return true;
+                password = new char[input.length() + 1];
+                strcpy(password, input.c_str());
+                statusMessage = EXECUTEPENDING;
+                return false;
             }else{
                 statusMessage = "Password need to be MIN 4 characters!!";
                 return false;
             }
     }
-    if(parameter_count == 2){
-        statusMessage = EXECUTEPENDING;
-        return false;
-    }else{
-        statusMessage = "Invalid Input! LoginProcess canceled!";
-        return false;
-    }
 }
 
-std::string LdapLogin::login(std::string username, const char* password) {
+std::string LdapLogin::login(std::string username, char* password) {
     LDAP *ld;            /* LDAP resource handle */
-    LDAPMessage *result, *e;    /* LDAP result handle */
-    BerElement *ber;        /* array of attributes */
-    char *attribute;
-    char **vals;
+    LDAPMessage *result, *e;    /* LDAP result handle */;
     std::string filter = "(uid=" + username + ")";
+    cout << filter << endl;
+    cout << username << password << endl;
     const char * FILTER = filter.c_str();
     char * dn;
 
@@ -97,42 +90,37 @@ std::string LdapLogin::login(std::string username, const char* password) {
         return FAILURE;
     }
 
-    printf("Total results: %d\n", ldap_count_entries(ld, result));
+    if(ldap_count_entries(ld,result) < 1){
+        return FAILURE;
+    }
 
     e = ldap_first_entry(ld, result);
     dn = ldap_get_dn(ld, e);
 
     rc = ldap_simple_bind(ld, dn, password);
 
+    if(rc != LDAP_SUCCESS) {
+        return FAILURE;
+    }
     /* free memory used for result */
     ldap_msgfree(result);
     free(attribs[0]);
     free(attribs[1]);
 
     ldap_unbind(ld);
-
-    if(rc == LDAP_SUCCESS){
-        return SUCCESS;
-    }else{
-        return FAILURE;
-    }
+    return SUCCESS;
 }
 
 string LdapLogin::execute() {
-    login_count ++;
-    if(login_count < 4){
-        if(login(username, password) == SUCCESS){
-            statusMessage = SUCCESS;
-            is_LoggedIn = true;
-            return "login successful!";
-        }else{
-            statusMessage = FAILURE;
-            return "Login failed!";
-        }
-    }else{
-        statusMessage = "Wrong Username or Password! IP is banned! Try it later again!";
-        return "Failed third time!";
+    if (login(username, password) == SUCCESS) {
+        statusMessage = SUCCESS;
+        is_LoggedIn = true;
+        return "login successful!";
+    } else {
+        statusMessage = FAILURE;
+        return "Login failed!";
     }
+
 }
 
 string LdapLogin::Get_Username() {
@@ -141,5 +129,9 @@ string LdapLogin::Get_Username() {
 
 bool LdapLogin::Get_IsLoggedIn() {
     return is_LoggedIn;
+}
+
+LdapLogin::~LdapLogin() {
+    delete[] password;
 }
 

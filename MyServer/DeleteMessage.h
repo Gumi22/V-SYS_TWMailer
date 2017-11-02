@@ -10,14 +10,16 @@
 
 class DeleteMessage : public ServerOperation{
 public:
-    DeleteMessage(const char * directory);
+    DeleteMessage(const char * directory, string username);
 
-    virtual bool fillMe(string);
+    bool fillMe(string);
 
-    virtual string execute();
+    string execute();
+
+    string Get_Username(){}
+    bool Get_IsLoggedIn(){};
 
 private:
-    string  username;
     int parameter_count, chosen_message;
 
 };

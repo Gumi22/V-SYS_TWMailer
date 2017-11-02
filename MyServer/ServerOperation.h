@@ -19,28 +19,31 @@ class ServerOperation {
 
 protected:
     string statusMessage;
+    string username;
     //ToDo: Put this in Config file
     const char * MESSAGEDIR;
     const char * USERDIR = "users";
     const char * SUCCESS = "OK\n";
     const char * FAILURE = "ERR\n";
     const char * EXECUTEPENDING = "EP\n";
-    //LdapLogin *UserAccount;
 
 
 public:
     //Constructor
     ServerOperation(const char * directory);
-    //ServerOperation(const char * directory, LdapLogin *User);
+    ServerOperation(const char * directory, string username);
 
     //fillMe fills internal arguments of operation with a string.
     //returns true id next line needs to be read and filled and false if Operation got all needed arguments or failed.
     virtual bool fillMe(string) = 0;
+    virtual bool Get_IsLoggedIn() = 0;
 
-    string getStatus();
+    virtual string getStatus();
 
     //Executes the operation returns the server response as a string
     virtual string execute() = 0;
+
+    virtual string Get_Username() = 0;
 };
 
 

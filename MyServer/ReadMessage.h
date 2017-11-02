@@ -11,18 +11,20 @@
 class ReadMessage : public ServerOperation {
 public:
     //Constructor
-    ReadMessage(const char * directory);
+    ReadMessage(const char * directory, string username);
 
-    virtual bool fillMe(string);
+    bool fillMe(string);
 
     //Searches for message in specified Folder and reads it, returns:
     //  <whole content of specified message> \n
     //or empty string if nothing was found.
-    virtual string execute();
+    string execute();
+
+    string Get_Username(){}
+    bool Get_IsLoggedIn(){};
 
 private:
     //Parses the input parameters
-    string User;
     int MessageNumber;
     int ParameterCount;
 };

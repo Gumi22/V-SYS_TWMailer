@@ -6,18 +6,18 @@
 
 ServerOperation::ServerOperation(const char * directory) {
     //nothing has to be done
-    statusMessage = "expecting parameter.\n";
+    statusMessage = "Expecting Parameter!\n";
     MESSAGEDIR = directory;
 }
 
-//ServerOperation::ServerOperation(const char *directory, LdapLogin* User) {
-//    statusMessage = "expecting paramenter.\n";
-//    MESSAGEDIR = directory;
-//    UserAccount = User;
-//
-//}
-
 string ServerOperation::getStatus() {return statusMessage;}
+
+ServerOperation::ServerOperation(const char *directory, string _username) {
+    username = _username;
+    statusMessage = "Expecting Parameter!";
+    MESSAGEDIR = directory;
+}
+
 
 
 

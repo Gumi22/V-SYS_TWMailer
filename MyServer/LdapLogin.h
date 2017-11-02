@@ -12,16 +12,17 @@
 class LdapLogin: public ServerOperation{
 private:
     bool is_LoggedIn = false;
-    std::string username;
-    const char * password;
-    int parameter_count, login_count;
+    std::string username = "";
+    char * password;
+    int parameter_count;
 
 public:
+    ~LdapLogin();
     LdapLogin(const char* directory);
-    std::string login(std::string username, const char* password);
+    std::string login(std::string username, char* password);
 
-    virtual bool fillMe(std::string);
-    virtual std::string execute();
+    bool fillMe(std::string);
+    std::string execute();
     std::string Get_Username();
     bool Get_IsLoggedIn();
 
