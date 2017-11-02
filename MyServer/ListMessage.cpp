@@ -20,7 +20,7 @@ bool ListMessage::fillMe(string line) {
     statusMessage = EXECUTEPENDING;
     return false;
 
-    unsigned long end = line.find('\n');
+//    unsigned long end = line.find('\n');
 
 //   if(end == string::npos || end == 0 || end > 9){
 //        //no \n found, or no user given (\n is first character), or username to long

@@ -35,7 +35,7 @@ bool LdapLogin::fillMe(std::string input) {
                 parameter_count ++;
                 password = new char[input.length() + 1];
                 strcpy(password, input.c_str());
-                for(int i = 0; i < input.length(); i++){
+                for(unsigned int i = 0; i < input.length(); i++){
                     if(password[i] == '\0' || password[i] == '\n') {
                         memmove(&password[i], &password[i + 1], strlen(password) - i);
                     }
@@ -46,6 +46,9 @@ bool LdapLogin::fillMe(std::string input) {
                 statusMessage = "Password need to be MIN 4 characters!!";
                 return false;
             }
+        default:
+            statusMessage = "You failed as fuck! Go home and cry! :D";
+            return false;
     }
 }
 
@@ -53,10 +56,7 @@ bool LdapLogin::login(std::string username, char* password) {
     LDAP *ld;            /* LDAP resource handle */
     LDAPMessage *result, *e;    /* LDAP result handle */;
     std::string filter = "(uid=" + username + ")";
-    ///cout << filter << endl;
-    ///cout << username << password << endl;
     const char * FILTER = filter.c_str();
-    ///cout << FILTER << endl;
     char * dn;
 
     int rc = 0;
@@ -100,10 +100,9 @@ bool LdapLogin::login(std::string username, char* password) {
 
     e = ldap_first_entry(ld, result);
     dn = ldap_get_dn(ld, e);
-    cout << dn << endl;
-    cout << password << endl;
+
     rc = ldap_simple_bind_s(ld, dn, password);
-    ///cout << rc << endl;
+
     if(rc != LDAP_SUCCESS) {
         cout << ldap_err2string(rc) << endl;
         statusMessage = FAILURE;

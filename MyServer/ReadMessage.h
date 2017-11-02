@@ -20,8 +20,8 @@ public:
     //or empty string if nothing was found.
     string execute();
 
-    string Get_Username(){}
-    bool Get_IsLoggedIn(){};
+    string Get_Username(){ return username;}
+    bool Get_IsLoggedIn(){ return is_LoggedIn;}
 
 private:
     //Parses the input parameters

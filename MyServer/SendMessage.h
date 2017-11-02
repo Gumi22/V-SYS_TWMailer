@@ -20,8 +20,8 @@ public:
 
     string execute();
 
-    string Get_Username(){}
-    bool Get_IsLoggedIn(){};
+    string Get_Username(){ return username;}
+    bool Get_IsLoggedIn(){ return is_LoggedIn;}
 
 private:
     string subject, message_final, receiver;

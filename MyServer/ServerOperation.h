@@ -20,6 +20,7 @@ class ServerOperation {
 protected:
     string statusMessage;
     string username;
+    bool is_LoggedIn = false;
     //ToDo: Put this in Config file
     const char * MESSAGEDIR;
     const char SUCCESS[4] = "OK\n";

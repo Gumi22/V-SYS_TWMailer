@@ -11,7 +11,6 @@
 
 class LdapLogin: public ServerOperation{
 private:
-    bool is_LoggedIn = false;
     std::string username = "";
     char * password;
     int parameter_count;

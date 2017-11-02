@@ -23,8 +23,8 @@ public:
     //  <subject N> \n
     string execute();
 
-    string Get_Username(){}
-    bool Get_IsLoggedIn(){};
+    string Get_Username(){ return  username;}
+    bool Get_IsLoggedIn(){ return is_LoggedIn;}
 };
 
 
