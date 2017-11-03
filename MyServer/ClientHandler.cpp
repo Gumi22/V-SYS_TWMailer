@@ -4,7 +4,6 @@
 
 
 #include "ClientHandler.h"
-#include "LdapLogin.h"
 
 ClientHandler::ClientHandler(const char * messagedir) {
     MESSAGEDIR = messagedir;
@@ -23,31 +22,34 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
     User* user = new User(clientIP, clientPort);
     int login_count = 0;
 
-    char buffer[BUF];
+    string bufferStr = "";
     long size;
 
     string commandResult;
+
+
+    string temp = "Welcome to myserver, Please enter your command:\n";
+    mysend(sock, &temp);
+
     do {
         //get command
-        size = recv(sock, buffer, BUF - 1, 0);
+        size = myrecv(sock, &bufferStr);
+
         if (size > 0) {
-            buffer[size] = '\0';
-            printf("Message received: %s", buffer);
-
+            cout << "Message received: " << bufferStr << endl;
             commandMatched = true; //we expect a real command, so reset it to true every command call
-
 
             if(!user->isTimedOut()){//Commands user can Access if not timed out:
                 if(user->isLoggedIn()) {//Commands user can Access if not timed out and is logged in:
-                    if (strncasecmp(buffer, "send", 4) == 0) {
+                    if (strncasecmp(bufferStr.c_str(), "send", 4) == 0) {
                         command = new SendMessage(MESSAGEDIR, user);
-                    } else if (strncasecmp(buffer, "list", 4) == 0) {
+                    } else if (strncasecmp(bufferStr.c_str(), "list", 4) == 0) {
                         command = new ListMessage(MESSAGEDIR, user);
-                    } else if (strncasecmp(buffer, "read", 4) == 0) {
+                    } else if (strncasecmp(bufferStr.c_str(), "read", 4) == 0) {
                         command = new ReadMessage(MESSAGEDIR, user);
-                    } else if (strncasecmp(buffer, "del", 3) == 0) {
+                    } else if (strncasecmp(bufferStr.c_str(), "del", 3) == 0) {
                         command = new DeleteMessage(MESSAGEDIR, user);
-                    } else if (strncasecmp(buffer, "help", 4) == 0) {
+                    } else if (strncasecmp(bufferStr.c_str(), "help", 4) == 0 || strncasecmp(bufferStr.c_str(), "?", 1) == 0) {
                         //ToDo: add help-loggedin command here :D
                     }
                     else{
@@ -55,9 +57,9 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                         commandResult = "No matching command found, please get help!";
                     }
                 }else{//Commands user can Access if not timed out and not logged in:
-                    if (strncasecmp(buffer, "help", 4) == 0 || strncasecmp(buffer, "?", 1) == 0) {
+                    if (strncasecmp(bufferStr.c_str(), "help", 4) == 0 || strncasecmp(bufferStr.c_str(), "?", 1) == 0) {
                         //ToDo: add help-loggedout command here :D
-                    }else if (strncasecmp(buffer, "login", 5) == 0) {
+                    }else if (strncasecmp(bufferStr.c_str(), "login", 5) == 0) {
                         command = new LdapLogin(MESSAGEDIR, user);
                     }else{
                         commandMatched = false;
@@ -65,7 +67,7 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                     }
                 }
             }else{ //Commands user can Access if user is timed out:
-                if (strncasecmp(buffer, "help", 4) == 0) {
+                if (strncasecmp(bufferStr.c_str(), "help", 4) == 0 || strncasecmp(bufferStr.c_str(), "?", 1) == 0) {
                     //ToDo: add help-timeout command here :D
                 }
                 else{
@@ -74,43 +76,31 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                 }
             }
             //Commands that can be Accessed all the time, commandmatched must be set true
-            if (strncasecmp(buffer, "quit", 4) == 0) {
+            if (strncasecmp(bufferStr.c_str(), "quit", 4) == 0) {
                 command = new Quit(MESSAGEDIR, user);
                 commandMatched = true;
             }
 
-
-
             if(!commandMatched){//No commands matched
                 char message[] = "placeholder";
-                send(sock, FAILURE, strlen(FAILURE), 0);
-                recv(sock, message, strlen(message) - 1, 0); //always wait for confirmation
-                send(sock, commandResult.c_str(), commandResult.length(), 0);
+                send(sock, FAILURE, strlen(FAILURE)+1, 0);
+                recv(sock, message, strlen(message), 0); //always wait for confirmation
+                mysend(sock, &commandResult);
             }
             else{ //if command was matched - get all the parameters and execute
 
                 //get the parameters if needed
+
                 if(command->getStatus() != EXECUTEPENDING){
+
                     do {
                         //always send the client confirmation and the instructions what to do
                         string confirmation = command->getStatus();
-                        send(sock, confirmation.c_str(), confirmation.length(), 0);
 
-                        //receive next line
-                        size = recv(sock, buffer, BUF - 1, 0);
-                        if (size > 0) {
-                            buffer[size] = '\0';
-                            printf("Message received: %s\n", buffer);
-                        } else if (size == 0) {
-                            printf("Client closed remote socket\n");
-                            break;
-                        } else {
-                            perror("recv error");
-                            return;// EXIT_FAILURE;
-                        }
+                        mysend(sock, &confirmation);
+                        myrecv(sock, &bufferStr);
 
-
-                    } while (command->fillMe(buffer)); //Fill Command with parameters till its satisfied
+                    } while (command->fillMe(bufferStr)); //Fill Command with parameters till its satisfied previously filled with buffer;
                 }
 
                 //were parameters filled correctly? if yes execute, if not return error message
@@ -118,17 +108,17 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                     commandResult = command->execute(); //finally execute command
 
                     //send the status to the client:
-                    send(sock, command->getStatus().c_str(), command->getStatus().length(),
-                         0); //send command status
+                    string status = command->getStatus();
+                    mysend(sock, &status);
                 } else {
                     commandResult = command->getStatus() + "\n"; //save the status as command result
 
                     //send Error to the client:
-                    send(sock, FAILURE, strlen(FAILURE), 0); //send command status
+                    send(sock, FAILURE, strlen(FAILURE)+1, 0); //send command status
                 }
                 char message[] = "placeholder";
                 recv(sock, message, strlen(message), 0); //always wait for confirmation
-                send(sock, commandResult.c_str(), commandResult.length(), 0); //send command result
+                mysend(sock, &commandResult);
 
                 cout << command->getStatus() << "\n"; //ToDo: remove this line later
                 cout << commandResult; //ToDo: remove this line later
@@ -144,7 +134,59 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
             perror("recv error");
             return;// EXIT_FAILURE;
         }
-    } while (strncmp(buffer, "quit", 4) != 0);
+    } while (strncmp(commandResult.c_str(), "quit\n", 5) != 0);
+    cout << "User " << user->getUsername() << "quit from address: " << user->getIPAddressAndPort() << "\n";
     delete user;
     close(sock);
+}
+
+unsigned long ClientHandler::mysend(int socket, const string * data) {
+    unsigned long size = data->length() + 1;
+    unsigned long sizeSent = 0;
+
+    char* buffer = new char[size];
+    strcpy(buffer, data->c_str());
+
+    while(sizeSent < size){
+        sizeSent += send(socket, &buffer[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //not sure if calculation is right ^^
+
+        //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
+        if(sizeSent < size){
+            if(recv(socket, new char* , BUF, 0) <= 0){
+                delete[] buffer;
+                return 0;
+            }
+        }
+    }
+    delete[] buffer;
+    return sizeSent;
+}
+
+unsigned long ClientHandler::myrecv(int socket, string * data) {
+    data->clear();
+    ssize_t sizeReceived = 0;
+    unsigned long totalReceived = 0;
+    char buffer[BUF];
+    bool endOfStringFound = false;
+
+    do{
+        //receive next line
+        sizeReceived = recv(socket, buffer, BUF, 0);
+
+        if (sizeReceived > 0) {
+            totalReceived += sizeReceived;
+            data->append(buffer);
+
+            if(buffer[sizeReceived-1] == '\0'){ //end of message :D
+                endOfStringFound = true;
+            }
+            else{ //continue receiving, send confirmation :D
+                send(socket, buffer, BUF, 0);
+            }
+        } else{
+            printf("Client closed remote socket, or recv failure\n");
+            return 0;
+        }
+    }while(!endOfStringFound);
+    return totalReceived;
 }

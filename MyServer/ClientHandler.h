@@ -28,9 +28,11 @@ private:
     const char FAILURE[5] = "ERR\n";
     const char EXECUTEPENDING[4] = "EP\n";
 
-
 public:
     explicit ClientHandler(const char*);
+
+    unsigned long mysend(int, const string*);
+    unsigned long myrecv(int, string*);
 
     void clientLoop(int, string, string);
     std::thread handleThisClient(int, string, string);

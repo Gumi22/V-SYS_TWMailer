@@ -21,17 +21,15 @@ int main(int argc, char **argv) {
     char * MESSAGEDIR;
 
     int PORT;
-    char buffer[BUF];
 
     ClientHandler* myClientHandler;
 
     //parse arguments
     if (argc == 3) {
-        PORT = atoi(argv[1]);
-        MESSAGEDIR = argv[2];
-        myClientHandler = new ClientHandler(argv[2]);
+        PORT = atoi(argv[2]);
+        MESSAGEDIR = argv[1];
     } else {
-        cout << "No Port or Path to Mailpool directory specified.\nUsage: myserver <port number> <path>\n";
+        cout << "No Port or Path to Mailspool directory specified.\nUsage: myserver <path> <port number>\n";
         return EXIT_FAILURE;
     }
 
@@ -58,14 +56,13 @@ int main(int argc, char **argv) {
         new_socket = accept(mySoc->getSocket(), (struct sockaddr *) &cliaddress, &addrlen);
         if (new_socket > 0) {
             printf("Client connected from %s:%d...\n", inet_ntoa(cliaddress.sin_addr), ntohs(cliaddress.sin_port));
-            strcpy(buffer, "Welcome to myserver, Please enter your command:\n");
-            send(new_socket, buffer, strlen(buffer), 0);
+
+            myClientHandler = new ClientHandler(argv[1]);
+
+            //Client connected, start command execution loop:
+            std::thread clientThread = myClientHandler->handleThisClient(new_socket, inet_ntoa(cliaddress.sin_addr), to_string(ntohs(cliaddress.sin_port)));
+            clientThread.detach();
         }
-        //Client connected, start command execution loop:
-
-        std::thread clientThread = myClientHandler->handleThisClient(new_socket, inet_ntoa(cliaddress.sin_addr), to_string(ntohs(cliaddress.sin_port)));
-        clientThread.detach();
-
     }
     delete(mySoc);
     return EXIT_SUCCESS;

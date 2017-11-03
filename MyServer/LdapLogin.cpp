@@ -118,10 +118,10 @@ string LdapLogin::execute() {
     check = true; //ToDo: remove this later;
     if (check) {
         user->Login(username, string(password));
-        return "Login successful for user: " + username + "\n";
+        return "Login successful for user: " + username + " from address: " + user->getIPAddressAndPort() + "\n";
     } else {
         user->incrementLoginTries();
-        return "Login failed for user: " + username + "\n";
+        return "Login failed for user: " + username + " from address: " + user->getIPAddressAndPort() + "\n";
     }
 
 }

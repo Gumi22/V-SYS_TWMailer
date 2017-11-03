@@ -7,6 +7,9 @@
 
 
 #include "ServerOperation.h"
+#include <dirent.h>
+#include <fstream>
+#include <regex>
 
 class ListMessage : public ServerOperation{
 public:

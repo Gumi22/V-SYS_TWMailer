@@ -5,9 +5,9 @@
 #include "User.h"
 
 User::User(string userIP, string userPort) {
+    setToDefault();
     IPAddress = userIP;
     port = userPort;
-    setToDefault();
 }
 
 void User::Login(string name, string pw) {
@@ -44,8 +44,8 @@ void User::Logout() {
 void User::setToDefault() {
     username = "";
     password = "";
-    port = "";
-    IPAddress = "";
+    //port = "";
+    //IPAddress = "";
     loggedIn = false;
     timedOut = false;
     loginTries = 0;

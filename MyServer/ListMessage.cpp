@@ -2,11 +2,8 @@
 // Created by alexander on 12.10.17.
 //
 
-#include <regex>
-#include "ListMessage.h"
-#include <dirent.h>
-#include <fstream>
 
+#include "ListMessage.h"
 
 
 ListMessage::ListMessage(const char * directory, User* user) :ServerOperation(directory, user) {
