@@ -1,5 +1,5 @@
 NAME := MyServer
-FLAGS := -ggdb -g -Wall -O -std=c++11 -pthread -DLDAP_DEPRECATED
+FLAGS := -ggdb -g -Wall -Werror -O -std=c++11 -pthread -DLDAP_DEPRECATED
 CC := g++
 
 all: ${NAME}
