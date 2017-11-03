@@ -43,33 +43,34 @@ int main(int argc, char **argv) {
 
     // If file does not exist, Create new file
     if (!IPTimeout) {
-        cout << "Cannot open file, file does not exist. Creating new file..";
-
         IPTimeout.open(filename, fstream::in | fstream::out | fstream::trunc);
         IPTimeout.close();
 
     }else{
+        ///Create all needed Variables
         string line, ipAddress;
         char * _timestamp;
         long timestamp;
         ifstream infile;
+        ///Open the file
         infile.open (filename);
+        ///Read line by line out of the file until the end of file is reached
         while(!infile.eof()) // To get you all the lines.
         {
+            ///2 Lines are always 1 key-value pair.. First line is the Key "IP - Adress"
             getline(infile,line); // Get the line with the IP Address
             ipAddress = line;
+            ///Second line is the Timestamp when the Timeout was set
             getline(infile,line); // Get the line with with the Timestamp
+            ///Create a new Char Array to transform it into a long datatype and finally save the Pair into the Map
             _timestamp = new char[line.length() + 1];
             strcpy(_timestamp, line.c_str());
             timestamp = strtoul(_timestamp, NULL, 0);
             IPTimeouts.insert( pair <string, long>(ipAddress, timestamp));
         }
         infile.close();
-//        for(auto elem : IPTimeouts){
-//            cout << elem.first << " 00c " << elem.second << endl;
-//        }
     }
-        //create socket
+    //create socket
     mySocket* mySoc;
     try{
         mySoc = new mySocket(PORT);

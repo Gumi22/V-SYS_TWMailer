@@ -16,6 +16,7 @@ bool LdapLogin::fillMe(std::string input) {
     switch(parameter_count){
         case 0:
             if(input.length() <= 9 && input.length() > 1) {
+                ///Check if there is a newline on the end of the string. If there is one, delete it
                 unsigned long end = input.find('\n');
                 username = input.substr(0,end);
                 parameter_count++;
@@ -30,6 +31,7 @@ bool LdapLogin::fillMe(std::string input) {
                 parameter_count ++;
                 password = new char[input.length() + 1];
                 strcpy(password, input.c_str());
+                ///Check all Index of the Array for an \n or a \0 -> if found, delete it
                 for(unsigned int i = 0; i < input.length(); i++){
                     if(password[i] == '\0' || password[i] == '\n') {
                         memmove(&password[i], &password[i + 1], strlen(password) - i);
@@ -42,6 +44,7 @@ bool LdapLogin::fillMe(std::string input) {
                 return false;
             }
         default:
+            ///just because the IDE was crying that there is no default :D never reach this default case
             statusMessage = "You failed as fuck! Go home and cry! :D";
             return false;
     }
