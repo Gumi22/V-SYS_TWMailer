@@ -5,7 +5,6 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <iostream>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -19,8 +18,9 @@ void createWorkingDirectories(char *);
 
 int main(int argc, char **argv) {
     char * MESSAGEDIR;
-
+    char filename[ ] = "IPTimeouts.txt";
     int PORT;
+    std::map <string, long>  IPTimeouts;
 
     ClientHandler* myClientHandler;
 
@@ -36,7 +36,40 @@ int main(int argc, char **argv) {
     //create needed directories
     createWorkingDirectories(MESSAGEDIR);
 
-    //create socket
+    fstream IPTimeout;
+
+    IPTimeout.open(filename, std::fstream::in | std::fstream::out | std::fstream::app);
+
+
+    // If file does not exist, Create new file
+    if (!IPTimeout) {
+        cout << "Cannot open file, file does not exist. Creating new file..";
+
+        IPTimeout.open(filename, fstream::in | fstream::out | fstream::trunc);
+        IPTimeout.close();
+
+    }else{
+        string line, ipAddress;
+        char * _timestamp;
+        long timestamp;
+        ifstream infile;
+        infile.open (filename);
+        while(!infile.eof()) // To get you all the lines.
+        {
+            getline(infile,line); // Get the line with the IP Address
+            ipAddress = line;
+            getline(infile,line); // Get the line with with the Timestamp
+            _timestamp = new char[line.length() + 1];
+            strcpy(_timestamp, line.c_str());
+            timestamp = strtoul(_timestamp, NULL, 0);
+            IPTimeouts.insert( pair <string, long>(ipAddress, timestamp));
+        }
+        infile.close();
+//        for(auto elem : IPTimeouts){
+//            cout << elem.first << " 00c " << elem.second << endl;
+//        }
+    }
+        //create socket
     mySocket* mySoc;
     try{
         mySoc = new mySocket(PORT);
@@ -60,7 +93,7 @@ int main(int argc, char **argv) {
             myClientHandler = new ClientHandler(argv[1]);
 
             //Client connected, start command execution loop:
-            std::thread clientThread = myClientHandler->handleThisClient(new_socket, inet_ntoa(cliaddress.sin_addr), to_string(ntohs(cliaddress.sin_port)));
+            std::thread clientThread = myClientHandler->handleThisClient(new_socket, inet_ntoa(cliaddress.sin_addr), to_string(ntohs(cliaddress.sin_port)), IPTimeouts);
             clientThread.detach();
         }
     }

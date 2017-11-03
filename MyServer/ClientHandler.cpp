@@ -9,18 +9,17 @@ ClientHandler::ClientHandler(const char * messagedir) {
     MESSAGEDIR = messagedir;
 }
 
-std::thread ClientHandler::handleThisClient(int socket, string clientIP, string clientPort) {
-    return std::thread([=] {clientLoop(socket, clientIP, clientPort);} );
+std::thread ClientHandler::handleThisClient(int socket, string clientIP, string clientPort, std::map <string, long> IPTimeout) {
+    return std::thread([=] {clientLoop(socket, clientIP, clientPort, IPTimeout);} );
 }
 
-void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
+void ClientHandler::clientLoop(int sock, string clientIP, string clientPort, std::map <string, long> IPTimeout) {
     //Client connected, start command execution loop:
 
     ServerOperation *command; //command the server executes
     bool commandMatched;
 
-    User* user = new User(clientIP, clientPort);
-    int login_count = 0;
+    User* user = new User(clientIP, clientPort, IPTimeout);
 
     string bufferStr = "";
     long size;

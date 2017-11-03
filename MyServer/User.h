@@ -7,12 +7,15 @@
 
 #include <cstring>
 #include <string>
+#include <chrono>
+#include <ctime>
 
 using namespace std;
 
 class User {
 
 private:
+    std::map <string, long> IPTimeouts;
     string username;
     string password;
     string IPAddress;
@@ -23,9 +26,10 @@ private:
     void setToDefault();
     void timeOutThisIP();
     void updateTimeOut();
+    void updateFile();
 
 public:
-    User(string, string);
+    User(string, string, std::map <string, long>);
     void Login(string, string);
     void Logout();
     string getUsername();

@@ -175,6 +175,7 @@ bool connectSocket(int &create_socket, char* serverAddress, u_int16_t port, char
     }
     else
     {
+        std::cout << "Test Connection Failed : " << std::endl;
         perror("Connect error - no server available");
         return false;
     }
