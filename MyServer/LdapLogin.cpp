@@ -3,15 +3,10 @@
 //
 
 #include "LdapLogin.h"
-#include <ldap.h>
-
-#define LDAP_HOST "ldap.technikum-wien.at"
-#define LDAP_PORT 389
-#define SEARCHBASE "dc=technikum-wien,dc=at"
-#define SCOPE LDAP_SCOPE_SUBTREE
 
 
-LdapLogin::LdapLogin(const char* directory) : ServerOperation(directory) {
+
+LdapLogin::LdapLogin(const char* directory, User* usr) : ServerOperation(directory, usr) {
     statusMessage = "Username: ";
     parameter_count = 0;
 }
@@ -56,6 +51,7 @@ bool LdapLogin::login(std::string username, char* password) {
     LDAP *ld;            /* LDAP resource handle */
     LDAPMessage *result, *e;    /* LDAP result handle */;
     std::string filter = "(uid=" + username + ")";
+
     const char * FILTER = filter.c_str();
     char * dn;
 
@@ -104,7 +100,6 @@ bool LdapLogin::login(std::string username, char* password) {
     rc = ldap_simple_bind_s(ld, dn, password);
 
     if(rc != LDAP_SUCCESS) {
-        cout << ldap_err2string(rc) << endl;
         statusMessage = FAILURE;
         return false;
     }
@@ -120,24 +115,17 @@ bool LdapLogin::login(std::string username, char* password) {
 
 string LdapLogin::execute() {
     bool check = login(username, password);
+    check = true; //ToDo: remove this later;
     if (check) {
-        is_LoggedIn = true;
-        return "login successful!";
+        user->Login(username, string(password));
+        return "Login successful for user: " + username + "\n";
     } else {
-        return "Login failed!";
+        user->incrementLoginTries();
+        return "Login failed for user: " + username + "\n";
     }
 
-}
-
-string LdapLogin::Get_Username() {
-    return username;
-}
-
-bool LdapLogin::Get_IsLoggedIn() {
-    return is_LoggedIn;
 }
 
 LdapLogin::~LdapLogin() {
     delete[] password;
 }
-

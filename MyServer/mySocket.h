@@ -11,6 +11,8 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <cstring>
+#include <cstdio>
+#include <cstdlib>
 
 class mySocket {
 

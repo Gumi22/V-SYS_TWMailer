@@ -14,9 +14,9 @@
 #include <fstream>
 
 
-SendMessage::SendMessage(const char *directory, string username) : ServerOperation(directory, username) {
+SendMessage::SendMessage(const char *directory, User* user) : ServerOperation(directory, user) {
     index = 1;
-    statusMessage = "Receiver";
+    statusMessage = "Receiver: ";
 }
 
 string SendMessage::execute() {
@@ -50,7 +50,7 @@ string SendMessage::execute() {
     mail.open(path_to_File, fstream::out);
 
     ///write all information into the mail-txt file.
-    mail << "Sender: " << username;
+    mail << "Sender: " << user->getUsername() << endl;
     mail << "Subject: " << subject;
     mail << message_final;
 
@@ -70,7 +70,7 @@ bool SendMessage::fillMe(string message) {
                 if(message.length() <= 9 && message.length() > 1){
                     receiver = message;
                     index ++;
-                    statusMessage = "Subject:";
+                    statusMessage = "Subject: ";
                     return true;
                 }
                 statusMessage = "Invalid Receiver - Min 1 Character andi Max 8 Characters";
@@ -80,7 +80,7 @@ bool SendMessage::fillMe(string message) {
                 if(message.length() <= 81){
                     subject = message;
                     index ++;
-                    statusMessage = "Message-Line:";
+                    statusMessage = "Message-Line: ";
                     return true;
                 }
                 statusMessage = "Invalid Subject - Max 80 Characters!";

@@ -4,19 +4,14 @@
 
 #include "ServerOperation.h"
 
-ServerOperation::ServerOperation(const char * directory) {
-    //nothing has to be done
-    statusMessage = "Expecting Parameter!\n";
+ServerOperation::ServerOperation(const char *directory, User* usr) {
     MESSAGEDIR = directory;
+    statusMessage = "Expecting Parameter!";
+    user = usr;
 }
 
 string ServerOperation::getStatus() {return statusMessage;}
 
-ServerOperation::ServerOperation(const char *directory, string _username) {
-    username = _username;
-    MESSAGEDIR = directory;
-    statusMessage = "Expecting Parameter!";
-}
 
 
 

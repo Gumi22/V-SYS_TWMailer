@@ -15,6 +15,8 @@
 #include "ReadMessage.h"
 #include "SendMessage.h"
 #include "DeleteMessage.h"
+#include "Quit.h"
+#include "User.h"
 
 #define BUF 1024
 
@@ -30,8 +32,8 @@ private:
 public:
     explicit ClientHandler(const char*);
 
-    void clientLoop(int);
-    std::thread handleThisClient(int);
+    void clientLoop(int, string, string);
+    std::thread handleThisClient(int, string, string);
 
 };
 

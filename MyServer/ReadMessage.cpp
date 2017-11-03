@@ -6,9 +6,7 @@
 #include <dirent.h>
 #include <fstream>
 
-ReadMessage::ReadMessage(const char * directory, string username) : ServerOperation(directory, username) {
-    unsigned long end = username.find('\n');
-    username = username.substr(0,end);
+ReadMessage::ReadMessage(const char * directory, User* user) : ServerOperation(directory, user) {
     ParameterCount = 0;
     MessageNumber = 0; //give invalid message number at beginning
     statusMessage = "Message-number: ";
@@ -35,7 +33,7 @@ bool ReadMessage::fillMe(string parameter) {
 string ReadMessage::execute() {
     string result = "";
     int count = 0;
-    string dir = string(MESSAGEDIR) + "/" + username;
+    string dir = string(MESSAGEDIR) + "/" + user->getUsername();
 
     DIR* userDir = opendir(dir.c_str()); //Open User Directory
 
@@ -47,7 +45,7 @@ string ReadMessage::execute() {
     if(userDir == nullptr){
         statusMessage = FAILURE;
         closedir(userDir);
-        return "No such User \"" + username + "\" found\n";
+        return "No such User \"" + user->getUsername() + "\" found\n";
     }
 
     //while directory isn't empty or didn't reach right file keep looking:

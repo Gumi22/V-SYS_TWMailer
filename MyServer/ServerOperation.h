@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string>
 #include <map>
+#include "User.h"
 
 
 using namespace std;
@@ -19,8 +20,7 @@ class ServerOperation {
 
 protected:
     string statusMessage;
-    string username;
-    bool is_LoggedIn = false;
+    User* user;
     //ToDo: Put this in Config file
     const char * MESSAGEDIR;
     const char SUCCESS[4] = "OK\n";
@@ -30,20 +30,16 @@ protected:
 
 public:
     //Constructor
-    ServerOperation(const char * directory);
-    ServerOperation(const char * directory, string username);
+    ServerOperation(const char * directory, User*);
 
     //fillMe fills internal arguments of operation with a string.
     //returns true id next line needs to be read and filled and false if Operation got all needed arguments or failed.
     virtual bool fillMe(string) = 0;
-    virtual bool Get_IsLoggedIn() = 0;
 
     string getStatus();
 
     //Executes the operation returns the server response as a string
     virtual string execute() = 0;
-
-    virtual string Get_Username() = 0;
 };
 
 

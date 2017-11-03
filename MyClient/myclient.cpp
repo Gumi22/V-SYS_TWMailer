@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <iostream>
+#include <termios.h>
 #define BUF 1024
 
 void receive(int fd, char *buf);
@@ -53,7 +53,18 @@ int main (int argc, char **argv) {
           //print received instructions (status message)
           printf ("%s ", buffer);
           //get user input and send
-          fgets (buffer, BUF, stdin);
+          if(strncasecmp(buffer, "password:", 9) == 0){
+              termios tty;
+              tcgetattr(STDIN_FILENO, &tty);
+              tty.c_lflag &= ~ECHO;
+              tcsetattr(STDIN_FILENO, TCSANOW, &tty);
+              fgets (buffer, BUF, stdin);
+              tty.c_lflag |= ECHO;
+              tcsetattr(STDIN_FILENO, TCSANOW, &tty);
+          }
+          else{
+              fgets (buffer, BUF, stdin);
+          }
           send(create_socket, buffer, strlen (buffer), 0);
           //receive response
           receive(create_socket, buffer);

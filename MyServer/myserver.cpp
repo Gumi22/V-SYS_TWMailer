@@ -17,15 +17,11 @@
 
 void createWorkingDirectories(char *);
 
-int createSocket();
-
 int main(int argc, char **argv) {
-    //ToDo: Put this in Config file
     char * MESSAGEDIR;
 
     int PORT;
     char buffer[BUF];
-    //long size;
 
     ClientHandler* myClientHandler;
 
@@ -67,7 +63,7 @@ int main(int argc, char **argv) {
         }
         //Client connected, start command execution loop:
 
-        std::thread clientThread = myClientHandler->handleThisClient(new_socket);
+        std::thread clientThread = myClientHandler->handleThisClient(new_socket, inet_ntoa(cliaddress.sin_addr), to_string(ntohs(cliaddress.sin_port)));
         clientThread.detach();
 
     }
@@ -79,7 +75,7 @@ int main(int argc, char **argv) {
 void createWorkingDirectories(char * msgdir) {
     //check messages directory
     if (!opendir(msgdir)) {
-        mkdir(msgdir, 0777);
+        mkdir(msgdir, 0754);
     }
     //ToDo: check user directory;
 }

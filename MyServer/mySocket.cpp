@@ -2,6 +2,7 @@
 // Created by osboxes on 28.10.17.
 //
 
+
 #include "mySocket.h"
 
 mySocket::mySocket(int port) {
@@ -15,7 +16,8 @@ mySocket::mySocket(int port) {
     address.sin_port = htons((uint16_t)port);
 
     if (bind(mySoc, (struct sockaddr *) &address, sizeof(address)) != 0) {
-        throw "binding error";
+        perror("binding error");
+        exit(1);
     }
     listen(mySoc, 5);
 }

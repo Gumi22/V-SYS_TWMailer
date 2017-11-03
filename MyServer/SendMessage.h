@@ -13,15 +13,12 @@
 class SendMessage : public ServerOperation{
 
 public:
-    explicit SendMessage(const char * directory, string username);
+    explicit SendMessage(const char * directory, User*);
     //SendMessage(const char * directory, LdapLogin *User);
 
-    bool fillMe(string Message);
+    bool fillMe(string Message) override;
 
-    string execute();
-
-    string Get_Username(){ return username;}
-    bool Get_IsLoggedIn(){ return is_LoggedIn;}
+    string execute() override;
 
 private:
     string subject, message_final, receiver;

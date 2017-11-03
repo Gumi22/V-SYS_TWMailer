@@ -9,30 +9,14 @@
 
 
 
-ListMessage::ListMessage(const char * directory, string username) :ServerOperation(directory, username) {
-    unsigned long end = username.find('\n');
-    username = username.substr(0,end);
+ListMessage::ListMessage(const char * directory, User* user) :ServerOperation(directory, user) {
+    statusMessage = EXECUTEPENDING;
 }
 
 
-//returns false either way, because first line after LIST command has to be the username
+//returns false either way, because we know the username already
 bool ListMessage::fillMe(string line) {
-    statusMessage = EXECUTEPENDING;
     return false;
-
-//    unsigned long end = line.find('\n');
-
-//   if(end == string::npos || end == 0 || end > 9){
-//        //no \n found, or no user given (\n is first character), or username to long
-//        statusMessage = "Username \"" + line +  "\" not valid\n";
-//        return false; //eventually return true if we want to give the sender another chance of not being a total dick and sending bullshit.
-//    }
-//    else{
-//        //ignore \n if found:
-//        User = line.substr(0, end);
-//        statusMessage = EXECUTEPENDING;
-//        return false;
-//    }
 }
 
 
@@ -42,7 +26,7 @@ bool ListMessage::fillMe(string line) {
 string ListMessage::execute() {
     string result = "", subjects = "";
     int count = 0;
-    string dir = string(MESSAGEDIR) + "/" + username;
+    string dir = string(MESSAGEDIR) + "/" + user->getUsername();
     DIR* userDir = opendir(dir.c_str()); //Open User Directory
 
     struct dirent * userDirEntry; //individual entries in the directory.
@@ -53,7 +37,7 @@ string ListMessage::execute() {
     if(userDir == nullptr){
         statusMessage = FAILURE;
         closedir(userDir);
-        return "No such User \"" + username + "\" found\n";
+        return "No such User \"" + user->getUsername() + "\" found\n";
     }
 
     //while directory isn't empty or didn't reach end keep looking:

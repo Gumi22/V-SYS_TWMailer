@@ -6,7 +6,7 @@
 #include <fstream>
 #include "DeleteMessage.h"
 
-DeleteMessage::DeleteMessage(const char * directory, string username) : ServerOperation(directory, username) {
+DeleteMessage::DeleteMessage(const char * directory, User* usr) : ServerOperation(directory, usr) {
     parameter_count = 0;
     chosen_message = 0;
     statusMessage = "Message-number: ";
@@ -39,7 +39,7 @@ string DeleteMessage::execute() {
     int count = 0;
     int delete_result = 1;
     ///create and parse a path to the correct user directory
-    string dir = string(MESSAGEDIR) + "/" + username;
+    string dir = string(MESSAGEDIR) + "/" + user->getUsername();
 
     ///open the user directory with the input path
     DIR* userDir = opendir(dir.c_str()); //Open User Directory
@@ -50,7 +50,7 @@ string DeleteMessage::execute() {
     if(userDir == nullptr){
         statusMessage = FAILURE;
         closedir(userDir);
-        return "No such User \"" + username + "\" found\n";
+        return "No such User \"" + user->getUsername() + "\" found\n";
     }
 
     ///while directory isn't empty or didn't reach right file keep looking:
