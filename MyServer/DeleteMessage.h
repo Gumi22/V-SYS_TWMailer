@@ -6,6 +6,8 @@
 #define V_SYS_TWMAILER_DELETEMESSAGE_H
 
 #include "ServerOperation.h"
+#include <dirent.h>
+#include <fstream>
 
 
 class DeleteMessage : public ServerOperation{

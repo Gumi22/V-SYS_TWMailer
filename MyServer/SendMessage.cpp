@@ -2,15 +2,9 @@
 // Created by alexander on 12.10.17.
 //
 
-#include <netinet/in.h>
-#include <queue>
-#include <string>
-#include <iostream>
-#include <sys/stat.h>
-#include <dirent.h>
+
 #include "SendMessage.h"
-#include <uuid/uuid.h>
-#include <fstream>
+
 
 
 SendMessage::SendMessage(const char *directory, User* user) : ServerOperation(directory, user) {

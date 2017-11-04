@@ -17,7 +17,6 @@ using namespace std;
 class User {
 
 private:
-    std::map <string, long> IPTimeouts;
     string username;
     string IPAddress;
     string port;

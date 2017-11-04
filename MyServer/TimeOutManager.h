@@ -7,6 +7,7 @@
 
 #include <map>
 #include <mutex>
+#include <fstream>
 #include "User.h"
 
 #define TIMEOUT_TIME_MS 100000

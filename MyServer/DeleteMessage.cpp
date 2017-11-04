@@ -2,8 +2,7 @@
 // Created by alexander on 12.10.17.
 //
 
-#include <dirent.h>
-#include <fstream>
+
 #include "DeleteMessage.h"
 
 DeleteMessage::DeleteMessage(const char * directory, User* usr) : ServerOperation(directory, usr) {

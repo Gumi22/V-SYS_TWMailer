@@ -7,6 +7,8 @@
 
 
 #include "ServerOperation.h"
+#include <dirent.h>
+#include <fstream>
 
 class ReadMessage : public ServerOperation {
 public:

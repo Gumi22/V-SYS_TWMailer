@@ -3,8 +3,7 @@
 //
 
 #include "ReadMessage.h"
-#include <dirent.h>
-#include <fstream>
+
 
 ReadMessage::ReadMessage(const char * directory, User* user) : ServerOperation(directory, user) {
     ParameterCount = 0;
