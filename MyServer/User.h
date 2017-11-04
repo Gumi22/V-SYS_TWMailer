@@ -9,6 +9,8 @@
 #include <string>
 #include <chrono>
 #include <ctime>
+#include <map>
+#include "User.h"
 
 using namespace std;
 
@@ -24,7 +26,7 @@ private:
     void setToDefault();
 
 public:
-    User(string, string, std::map <string, long>&);
+    User(string, string);
     void Login(string, string);
     string getUsername();
     bool isLoggedIn();

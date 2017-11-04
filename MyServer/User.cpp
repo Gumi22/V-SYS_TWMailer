@@ -2,17 +2,12 @@
 // Created by osboxes on 02.11.17.
 //
 
-#include <map>
-#include <fstream>
-#include <iostream>
-#include "User.h"
 #include "TimeOutManager.h"
 
-User::User(string userIP, string userPort, std::map <string, long> &IPTimeout) {
+User::User(string userIP, string userPort) {
     setToDefault();
     IPAddress = userIP;
     port = userPort;
-    IPTimeouts = IPTimeout;
 }
 
 void User::Login(string name, string pw) {

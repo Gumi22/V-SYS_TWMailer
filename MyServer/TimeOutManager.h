@@ -9,7 +9,7 @@
 #include <mutex>
 #include "User.h"
 
-#define TIMEOUT_TIME_MS 30000
+#define TIMEOUT_TIME_MS 100000
 #define IP_TIMEOUT_FILE "IPTimeouts.txt"
 
 class TimeOutManager {
@@ -28,6 +28,8 @@ public:
     void timeOut(User *);
 
     bool isTimedOut(User *);
+
+    void addFileToMap();
 
 };
 

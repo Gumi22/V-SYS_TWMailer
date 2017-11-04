@@ -11,6 +11,7 @@
 #include "ListMessage.h"
 #include "mySocket.h"
 #include "ClientHandler.h"
+#include "TimeOutManager.h"
 #include <mutex>
 
 #define BUF 1024
@@ -19,9 +20,7 @@ void createWorkingDirectories(char *);
 
 int main(int argc, char **argv) {
     char * MESSAGEDIR;
-    char filename[ ] = "IPTimeouts.txt";
     int PORT;
-    std::map <string, long>  IPTimeouts;
 
     ClientHandler* myClientHandler;
 
@@ -37,40 +36,9 @@ int main(int argc, char **argv) {
     //create needed directories
     createWorkingDirectories(MESSAGEDIR);
 
-    fstream IPTimeout;
+    auto & instance = TimeOutManager::getSingleton();
+    instance.addFileToMap();
 
-    IPTimeout.open(filename, std::fstream::in | std::fstream::out | std::fstream::app);
-
-
-    // If file does not exist, Create new file
-    if (!IPTimeout) {
-        IPTimeout.open(filename, fstream::in | fstream::out | fstream::trunc);
-        IPTimeout.close();
-
-    }else{
-        ///Create all needed Variables
-        string line, ipAddress;
-        char * _timestamp;
-        long timestamp;
-        ifstream infile;
-        ///Open the file
-        infile.open (filename);
-        ///Read line by line out of the file until the end of file is reached
-        while(!infile.eof()) // To get you all the lines.
-        {
-            ///2 Lines are always 1 key-value pair.. First line is the Key "IP - Adress"
-            getline(infile,line); // Get the line with the IP Address
-            ipAddress = line;
-            ///Second line is the Timestamp when the Timeout was set
-            getline(infile,line); // Get the line with with the Timestamp
-            ///Create a new Char Array to transform it into a long datatype and finally save the Pair into the Map
-            _timestamp = new char[line.length() + 1];
-            strcpy(_timestamp, line.c_str());
-            timestamp = strtoul(_timestamp, NULL, 0);
-            IPTimeouts.insert( pair <string, long>(ipAddress, timestamp));
-        }
-        infile.close();
-    }
     //create socket
     mySocket* mySoc;
     try{
@@ -95,7 +63,7 @@ int main(int argc, char **argv) {
             myClientHandler = new ClientHandler(argv[1]);
 
             //Client connected, start command execution loop:
-            std::thread clientThread = myClientHandler->handleThisClient(new_socket, inet_ntoa(cliaddress.sin_addr), to_string(ntohs(cliaddress.sin_port)), IPTimeouts);
+            std::thread clientThread = myClientHandler->handleThisClient(new_socket, inet_ntoa(cliaddress.sin_addr), to_string(ntohs(cliaddress.sin_port)));
             clientThread.detach();
         }
     }
