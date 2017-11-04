@@ -6,6 +6,7 @@
 #define V_SYS_TWMAILER_TIMEOUTMANAGER_H
 
 #include <map>
+#include <mutex>
 #include "User.h"
 
 #define TIMEOUT_TIME_MS 30000
@@ -13,20 +14,19 @@
 
 class TimeOutManager {
 private:
-    static TimeOutManager* instance;
-    std::mutex my_mutex;
-    std::map <string, long> timeOuts; //could be <User*, long> later :D
-    TimeOutManager();
+    std::mutex mapMutex, fileMutex;
+    std::map <string, long> timeOuts;
+
+    void updateFile();
 
 public:
-    static TimeOutManager* getInstance(){
-        if(instance == nullptr){
-            instance = new TimeOutManager();
-        }
-        return instance;
+    static TimeOutManager& getSingleton(){
+        static TimeOutManager t { };
+        return t;
     }
 
     void timeOut(User *);
+
     bool isTimedOut(User *);
 
 };
