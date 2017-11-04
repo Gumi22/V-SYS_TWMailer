@@ -124,3 +124,11 @@ void User::updateFile(){
     }
     appendFileToWorkWith.close();
 }
+
+string User::getIPAddress() {
+    return IPAddress;
+}
+
+string User::getPort() {
+    return port;
+}

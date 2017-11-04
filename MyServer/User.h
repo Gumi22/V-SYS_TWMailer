@@ -36,6 +36,8 @@ public:
     string getPassword();
     bool isLoggedIn();
     string getIPAddressAndPort();
+    string getIPAddress();
+    string getPort();
     void incrementLoginTries();
     bool isTimedOut();
 

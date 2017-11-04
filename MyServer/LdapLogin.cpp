@@ -27,7 +27,7 @@ bool LdapLogin::fillMe(std::string input) {
                 return false;
             }
         case 1:
-            if(input.length() > 4) {
+            if(input.length() >= 8) {
                 parameter_count ++;
                 password = new char[input.length() + 1];
                 strcpy(password, input.c_str());
@@ -40,7 +40,7 @@ bool LdapLogin::fillMe(std::string input) {
                 statusMessage = EXECUTEPENDING;
                 return false;
             }else{
-                statusMessage = "Password need to be MIN 4 characters!!";
+                statusMessage = "Password need to be MIN 8 characters!!";
                 return false;
             }
         default:
