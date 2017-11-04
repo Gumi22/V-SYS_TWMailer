@@ -22,7 +22,8 @@ void TimeOutManager::timeOut(User * user) {
     /// use existing file and write ip address and timestamp into it
     appendFileToWorkWith << user->getIPAddress() << endl << std::to_string(ms.count()) << endl;
     appendFileToWorkWith.close();
-
+    std::lock_guard<mutex> lock(mapMutex);
+    timeOuts.insert(pair <string, long>(user->getIPAddress(), ms.count()));
 
 }
 

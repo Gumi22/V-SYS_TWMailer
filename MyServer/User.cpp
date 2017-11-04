@@ -17,7 +17,6 @@ User::User(string userIP, string userPort, std::map <string, long> &IPTimeout) {
 
 void User::Login(string name, string pw) {
     username = name;
-    password = pw;
     loggedIn = true;
 }
 
@@ -32,10 +31,6 @@ bool User::isLoggedIn() {
     return loggedIn;
 }
 
-string User::getPassword() {
-    return password;
-}
-
 /**
  * resets username and password to default and loggedIn to false
  */
@@ -48,11 +43,9 @@ void User::Logout() {
  */
 void User::setToDefault() {
     username = "";
-    password = "";
     port = "";
     IPAddress = "";
     loggedIn = false;
-    timedOut = false;
     loginTries = 0;
 }
 
@@ -63,13 +56,9 @@ string User::getIPAddressAndPort() {
 void User::incrementLoginTries() {
     loginTries++;
     if(loginTries >= 3){
-        timeOutThisIP();
+        auto & instance = TimeOutManager::getSingleton();
+        instance.timeOut(this);
     }
-}
-
-void User::timeOutThisIP() {
-    auto & instance = TimeOutManager::getSingleton();
-    instance.timeOut(this);
 }
 
 bool User::isTimedOut() {
@@ -80,8 +69,4 @@ bool User::isTimedOut() {
 
 string User::getIPAddress() {
     return IPAddress;
-}
-
-string User::getPort() {
-    return port;
 }
