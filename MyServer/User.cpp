@@ -7,7 +7,7 @@
 #include <iostream>
 #include "User.h"
 
-User::User(string userIP, string userPort, std::map <string, long> IPTimeout) {
+User::User(string userIP, string userPort, std::map <string, long> &IPTimeout) {
     setToDefault();
     IPAddress = userIP;
     port = userPort;

@@ -9,8 +9,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include "SendMessage.h"
-#include "LdapLogin.h"
-#include <chrono>
+#include <uuid/uuid.h>
 #include <fstream>
 
 
@@ -20,9 +19,10 @@ SendMessage::SendMessage(const char *directory, User* user) : ServerOperation(di
 }
 
 string SendMessage::execute() {
-    std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >(
-            std::chrono::system_clock::now().time_since_epoch()
-    );
+//    std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >(
+//            std::chrono::system_clock::now().time_since_epoch()
+//    );
+    uuid_t uniqueName;
     /// save receiver with \n on the end of the string
     string receiver_print = receiver;
     ///delete \n from the end of the string for routing in directories
@@ -30,7 +30,10 @@ string SendMessage::execute() {
     ///build correct path into directory of the receiver
     string path_of_Directory = string(MESSAGEDIR) + '/' + receiver;
     ///build a unique path to the mail txt file
-    string path_to_file = string(MESSAGEDIR) + '/' + receiver + '/' + std::to_string(ms.count()) + ".txt";
+    uuid_generate(uniqueName);
+    char * uniqueTmp;
+    uuid_unparse(uniqueName, uniqueTmp);
+    string path_to_file = string(MESSAGEDIR) + '/' + receiver + '/' + uniqueTmp +  ".txt";
 
     ///convert all strings into char * for functions opendir, mkdir, fprintf
     const char * path = path_of_Directory.c_str();

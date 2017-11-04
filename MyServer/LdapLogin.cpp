@@ -118,7 +118,7 @@ bool LdapLogin::login(std::string username, char* password) {
 
 string LdapLogin::execute() {
     bool check = login(username, password);
-    check = false; //ToDo: remove this later;
+    check = true; //ToDo: remove this later;
     if (check) {
         user->Login(username, string(password));
         return "Login successful for user: " + username + " from address: " + user->getIPAddressAndPort() + "\n";

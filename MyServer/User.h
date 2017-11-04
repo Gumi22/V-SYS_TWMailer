@@ -29,7 +29,7 @@ private:
     void updateFile();
 
 public:
-    User(string, string, std::map <string, long>);
+    User(string, string, std::map <string, long>&);
     void Login(string, string);
     void Logout();
     string getUsername();
