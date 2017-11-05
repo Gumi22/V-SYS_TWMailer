@@ -145,6 +145,7 @@ unsigned long ClientHandler::mysend(int socket, const string * data) {
     unsigned long sizeSent = 0;
 
     char* buffer = new char[size];
+    char* buf = new char[size];
     strcpy(buffer, data->c_str());
 
     while(sizeSent < size){
@@ -152,13 +153,15 @@ unsigned long ClientHandler::mysend(int socket, const string * data) {
 
         //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
         if(sizeSent < size){
-            if(recv(socket, new char* , sizeof(char*), 0) <= 0){
+            if(recv(socket, buf , sizeof(char*), 0) <= 0){
                 delete[] buffer;
+                delete[] buf;
                 return 0;
             }
         }
     }
     delete[] buffer;
+    delete[] buf;
     return sizeSent;
 }
 
