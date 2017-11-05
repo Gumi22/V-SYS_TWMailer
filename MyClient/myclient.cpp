@@ -4,11 +4,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <termios.h>
+#include <cstdlib>
+#include <cstdio>
 #include <cstring>
+#include <termios.h>
 #include <string>
 #include <iostream>
 #define BUF 1024
@@ -16,7 +15,7 @@
 unsigned long myrecv(int, std::string *);
 unsigned long mysend(int, const std::string *);
 
-bool connectSocket(int&, char*, u_int16_t, char*);
+bool connectSocket(int&, char*, u_int16_t);
 
 
 
@@ -27,11 +26,10 @@ int main (int argc, char **argv) {
     u_int16_t PORT;
     char* SERVERADRESS;
     int create_socket;
-    char buffer[BUF];
     std::string bufferStr;
 
     if( argc < 3 || argc > 3){
-        printf("Usage: %s <ServerAdresse> <Port-number>\n", argv[0]);
+        std::cout << "Usage: "<< argv[0] << "<ServerAdresse> <Port-Nummer>" << std::endl;
         exit(EXIT_FAILURE);
     }
     else{
@@ -39,7 +37,7 @@ int main (int argc, char **argv) {
         SERVERADRESS = argv[1];
     }
 
-    if(!connectSocket(create_socket, SERVERADRESS, PORT, buffer)){
+    if(!connectSocket(create_socket, SERVERADRESS, PORT)){
         return EXIT_FAILURE;
     }
 
@@ -90,7 +88,7 @@ int main (int argc, char **argv) {
         }
 
         //Print only result
-        printf ("%s \n", bufferStr.c_str());
+        std::cout << bufferStr.c_str() << std::endl;
 
     } while (true);
     close (create_socket);
@@ -103,7 +101,8 @@ unsigned long mysend(int socket, const std::string * data) {
     unsigned long size = data->length() + 1;
     unsigned long sizeSent = 0;
 
-    char* buffer = new char[size];
+    auto* buffer = new char[size];
+    auto* buf = new char [size];
     strcpy(buffer, data->c_str());
 
     while(sizeSent < size){
@@ -111,12 +110,14 @@ unsigned long mysend(int socket, const std::string * data) {
 
         //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
         if(sizeSent < size){
-            if(recv(socket, new char* , BUF, 0) <= 0){
+            if(recv(socket, buf , sizeof(char*), 0) <= 0){
                 delete[] buffer;
+                delete[] buf;
                 return 0;
             }
         }
     }
+    delete[] buf;
     delete[] buffer;
     return sizeSent;
 }
@@ -143,7 +144,7 @@ unsigned long myrecv(int socket, std::string * data) {
                 send(socket, buffer, BUF, 0);
             }
         } else{
-            printf("Client closed remote socket, or recv failure\n");
+            std::cout << "Client closed remote socket, or recv failure" << std::endl;
             return 0;
         }
     }while(!endOfStringFound);
@@ -151,12 +152,12 @@ unsigned long myrecv(int socket, std::string * data) {
 }
 
 
-bool connectSocket(int &create_socket, char* serverAddress, u_int16_t port, char *buf){
-    struct sockaddr_in address;
+bool connectSocket(int &create_socket, char* serverAddress, u_int16_t port){
+    struct sockaddr_in address = { 0 };
 
     if ((create_socket = socket (AF_INET, SOCK_STREAM, 0)) == -1)
     {
-        perror("Socket error");
+        std::cerr << "Socket error";
         return false;
     }
 
@@ -167,7 +168,7 @@ bool connectSocket(int &create_socket, char* serverAddress, u_int16_t port, char
 
     if (connect ( create_socket, (struct sockaddr *) &address, sizeof (address)) == 0)
     {
-        printf ("Connection with server (%s) established\n", inet_ntoa (address.sin_addr));
+        std::cout << "Connection with server (" << inet_ntoa(address.sin_addr) << ") established!" << std::endl;
         //expect a response;
         std::string buf = "";
         myrecv(create_socket, &buf);
@@ -175,8 +176,7 @@ bool connectSocket(int &create_socket, char* serverAddress, u_int16_t port, char
     }
     else
     {
-        std::cout << "Test Connection Failed : " << std::endl;
-        perror("Connect error - no server available");
+        std::cerr << "Connect error - no server available" << std::endl;
         return false;
     }
     return true;

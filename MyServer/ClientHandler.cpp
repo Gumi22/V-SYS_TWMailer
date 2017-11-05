@@ -21,7 +21,7 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
 
     User* user = new User(clientIP, clientPort);
 
-    string bufferStr = "";
+    string bufferStr;
     long size;
 
     string commandResult;
@@ -122,12 +122,12 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
 
         } else if (size == 0) {
             close(sock);
-            printf("Client closed remote socket\n");
+            cout << "Client closed remote socket" << endl;
             break;
         } else {
             delete user;
             close(sock);
-            perror("recv error");
+            cerr << "recv error" << endl;
             return;// EXIT_FAILURE;
         }
     } while (strncmp(commandResult.c_str(), "quit\n", 5) != 0);
@@ -183,7 +183,7 @@ unsigned long ClientHandler::myrecv(int socket, string * data) {
                 send(socket, buffer, BUF, 0);
             }
         } else{
-            printf("Client closed remote socket, or recv failure\n");
+            cout << "Client closed remote socket, or recv failure" << endl;
             return 0;
         }
     }while(!endOfStringFound);
