@@ -26,7 +26,7 @@ private:
 
 public:
     User(string, string);
-    void Login(string, string);
+    void Login(string);
     string getUsername();
     bool isLoggedIn();
     string getIPAddressAndPort();

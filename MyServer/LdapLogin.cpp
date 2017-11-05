@@ -70,6 +70,8 @@ bool LdapLogin::login(std::string username, char* password) {
     /* setup LDAP connection */
     if ((ld = ldap_init(LDAP_HOST, LDAP_PORT)) == NULL) {
         statusMessage = FAILURE;
+        free(attribs[0]);
+        free(attribs[1]);
         return false;
     }
 
@@ -78,9 +80,9 @@ bool LdapLogin::login(std::string username, char* password) {
 
     if (rc != LDAP_SUCCESS) {
         statusMessage = FAILURE;
+        free(attribs[0]);
+        free(attribs[1]);
         return false;
-    } else {
-        printf("bind successful\n");
     }
 
     /* perform ldap search */
@@ -88,12 +90,16 @@ bool LdapLogin::login(std::string username, char* password) {
 
     if (rc != LDAP_SUCCESS) {
         statusMessage = FAILURE;
+        free(attribs[0]);
+        free(attribs[1]);
         return false;
     }
 
     cout << ldap_count_entries(ld, result)  << endl;
     if(ldap_count_entries(ld,result) < 1){
         statusMessage = FAILURE;
+        free(attribs[0]);
+        free(attribs[1]);
         return false;
     }
 
@@ -104,6 +110,8 @@ bool LdapLogin::login(std::string username, char* password) {
 
     if(rc != LDAP_SUCCESS) {
         statusMessage = FAILURE;
+        free(attribs[0]);
+        free(attribs[1]);
         return false;
     }
     /* free memory used for result */
@@ -118,9 +126,9 @@ bool LdapLogin::login(std::string username, char* password) {
 
 string LdapLogin::execute() {
     bool check = login(username, password);
-    check = false; //ToDo: remove this later;
+    check = true; //ToDo: remove this later;
     if (check) {
-        user->Login(username, string(password));
+        user->Login(username);
         return "Login successful for user: " + username + " from address: " + user->getIPAddressAndPort() + "\n";
     } else {
         user->incrementLoginTries();

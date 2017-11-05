@@ -136,6 +136,7 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
     } while (strncmp(commandResult.c_str(), "quit\n", 5) != 0);
     cout << "User " << user->getUsername() << "quit from address: " << user->getIPAddressAndPort() << "\n";
     delete user;
+    delete command;
     close(sock);
 }
 
@@ -151,7 +152,7 @@ unsigned long ClientHandler::mysend(int socket, const string * data) {
 
         //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
         if(sizeSent < size){
-            if(recv(socket, new char* , BUF, 0) <= 0){
+            if(recv(socket, new char* , sizeof(char*), 0) <= 0){
                 delete[] buffer;
                 return 0;
             }

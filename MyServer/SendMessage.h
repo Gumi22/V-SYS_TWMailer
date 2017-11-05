@@ -13,7 +13,10 @@
 #include <iostream>
 #include <sys/stat.h>
 #include <dirent.h>
-#include <uuid/uuid.h>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/random_generator.hpp>
+#include <boost/lexical_cast.hpp>
 #include <fstream>
 #include "ServerOperation.h"
 #include "LdapLogin.h"

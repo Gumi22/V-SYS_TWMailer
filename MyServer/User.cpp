@@ -10,7 +10,7 @@ User::User(string userIP, string userPort) {
     port = userPort;
 }
 
-void User::Login(string name, string pw) {
+void User::Login(string name) {
     username = name;
     loggedIn = true;
 }
