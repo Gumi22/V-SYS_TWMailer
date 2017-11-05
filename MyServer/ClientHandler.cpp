@@ -118,9 +118,6 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                 char message[] = "placeholder";
                 recv(sock, message, strlen(message), 0); //always wait for confirmation
                 mysend(sock, &commandResult);
-
-                cout << command->getStatus() << "\n"; //ToDo: remove this line later
-                cout << commandResult; //ToDo: remove this line later
             }
 
         } else if (size == 0) {
