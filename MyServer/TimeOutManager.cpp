@@ -45,7 +45,9 @@ bool TimeOutManager::isTimedOut(User * user) {
         }else{
             return true;
         }
-    }
+    }else{
+	return false;
+}
 }
 
 void TimeOutManager::updateFile() {

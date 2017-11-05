@@ -16,7 +16,7 @@ std::thread ClientHandler::handleThisClient(int socket, string clientIP, string 
 void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
     //Client connected, start command execution loop:
 
-    ServerOperation *command; //command the server executes
+    ServerOperation *command = nullptr; //command the server executes
     bool commandMatched;
 
     User* user = new User(clientIP, clientPort);
@@ -133,7 +133,6 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
     } while (strncmp(commandResult.c_str(), "quit\n", 5) != 0);
     cout << "User " << user->getUsername() << "quit from address: " << user->getIPAddressAndPort() << "\n";
     delete user;
-    delete command;
     close(sock);
 }
 
@@ -141,8 +140,8 @@ unsigned long ClientHandler::mysend(int socket, const string * data) {
     unsigned long size = data->length() + 1;
     unsigned long sizeSent = 0;
 
-    char* buffer = new char[size];
-    char* buf = new char[size];
+    auto * buffer = new char[size];
+    auto * buf = new char[size];
     strcpy(buffer, data->c_str());
 
     while(sizeSent < size){
