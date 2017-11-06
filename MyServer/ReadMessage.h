@@ -26,6 +26,8 @@ private:
     //Parses the input parameters
     int MessageNumber;
     int ParameterCount;
+    string peek();
+
 };
 
 

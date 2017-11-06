@@ -28,6 +28,8 @@ private:
     const char FAILURE[5] = "ERR\n";
     const char EXECUTEPENDING[4] = "EP\n";
 
+    bool sendFile(int, string*);
+
 public:
     explicit ClientHandler(const char*);
 
@@ -35,6 +37,7 @@ public:
     unsigned long myrecv(int, string*);
 
     unsigned long myrecv(int , char ** );
+    unsigned long mysend(int ,char * , unsigned long);
 
     void clientLoop(int, string, string);
     std::thread handleThisClient(int, string, string);

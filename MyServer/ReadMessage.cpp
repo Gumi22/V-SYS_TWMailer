@@ -2,6 +2,8 @@
 // Created by alexander on 12.10.17.
 //
 
+#include <sstream>
+#include <iostream>
 #include "ReadMessage.h"
 
 
@@ -17,7 +19,21 @@ bool ReadMessage::fillMe(string parameter) {
         if(!parameter.empty() && isdigit(parameter[0]) && parameter[0] != '0'){ //is the parameter even a number bigger than 0?
             MessageNumber = stoi(parameter);
             ParameterCount ++;
-            statusMessage = EXECUTEPENDING;
+
+
+            string result = peek();
+            string line = "";
+            stringstream ss(result);
+            getline(ss, line);
+            getline(ss, line);
+            getline(ss, line); //get the attachment name
+            result = line.substr(line.find(' ')+1);
+
+            statusMessage = string("save_this_file: \n");
+            if(result != ""){
+                statusMessage += "messages/" + user->getUsername() + "/attachments/" + result ;
+                cout << statusMessage;
+            }
         }
         else{
             statusMessage = "Invalid Message Number - Must be integer bigger than 0!";
@@ -25,13 +41,31 @@ bool ReadMessage::fillMe(string parameter) {
             return false;
         }
     }
+    else if(ParameterCount == 1){
+        //is the parameter even a number bigger than 0?
+            ParameterCount ++;
+            statusMessage = EXECUTEPENDING;
+    }
 
     //check if ready and return true if != 2 and false if all parameters were given
-    return ParameterCount != 1;
+    return ParameterCount != 2;
 }
 
 string ReadMessage::execute() {
     ParameterCount = 0;
+    string result = peek();
+
+    if(result == ""){
+        statusMessage = FAILURE;
+        result = "No matching file found.\n";
+    }
+
+    statusMessage = SUCCESS;
+
+    return result;
+}
+
+string ReadMessage::peek() {
     string result = "";
     int count = 0;
     string dir = string(MESSAGEDIR) + "/" + user->getUsername();
@@ -72,13 +106,6 @@ string ReadMessage::execute() {
             }
         }
     }
-
-    if(result == ""){
-        statusMessage = FAILURE;
-        result = "No matching file found.\n";
-    }
-
-    statusMessage = SUCCESS;
     closedir(userDir);
     return result;
 }
