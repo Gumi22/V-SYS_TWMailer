@@ -32,7 +32,7 @@ public:
     string execute() override;
 
 private:
-    string subject, message_final, receiver;
+    string subject, message_final, receiver, attachmentFileName, attachment;
     int index;
 };
 

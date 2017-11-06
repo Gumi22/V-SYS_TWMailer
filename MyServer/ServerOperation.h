@@ -5,8 +5,8 @@
 #ifndef V_SYS_TWMAILER_SERVEROPERATION_H
 #define V_SYS_TWMAILER_SERVEROPERATION_H
 
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdio>
 #include <string>
 #include <map>
 #include "User.h"

@@ -10,6 +10,7 @@
 #include <termios.h>
 #include <string>
 #include <iostream>
+#include <fstream>
 #define BUF 1024
 
 unsigned long myrecv(int, std::string *);
@@ -69,6 +70,19 @@ int main (int argc, char **argv) {
                 tty.c_lflag |= ECHO;
                 tcsetattr(STDIN_FILENO, TCSANOW, &tty);
             }
+            else if(strncasecmp(bufferStr.c_str(), "send_me_this_file: \n", 20) == 0){
+                std::string fileName = bufferStr.substr(20);
+                std::cout << fileName << " wird gesendet!" << std::endl;
+
+                //file öffnen und inhalte kopieren :D
+                std::ifstream file(fileName, std::ios::binary);
+                bufferStr.assign( (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()) );
+                bufferStr.append("\0");
+
+                file.close();
+                //std::cout << bufferStr;
+
+            }
             else{
                 getline(std::cin, bufferStr);
                 bufferStr.append("\n");
@@ -79,7 +93,7 @@ int main (int argc, char **argv) {
         }
 
         //override received status message with result:
-        send(create_socket, SUCCESS, strlen(SUCCESS)+1, 0); //send confirmation
+        mysend(create_socket, &bufferStr); //send confirmation
         myrecv(create_socket, &bufferStr);
 
         //quit if command is quit
@@ -101,23 +115,21 @@ unsigned long mysend(int socket, const std::string * data) {
     unsigned long size = data->length() + 1;
     unsigned long sizeSent = 0;
 
-    auto* buffer = new char[size];
-    auto* buf = new char [size];
+    auto * buffer = new char[size];
+    char buf [BUF];
     strcpy(buffer, data->c_str());
 
     while(sizeSent < size){
-        sizeSent += send(socket, &buffer[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //not sure if calculation is right ^^
-
+        sizeSent += send(socket, &buffer[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //not sure if calculation is right ^^ -> seems ok
+        //std::cout << "sent: " << sizeSent << " from " << size << std::endl;
         //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
         if(sizeSent < size){
-            if(recv(socket, buf , sizeof(char*), 0) <= 0){
+            if(recv(socket, buf , BUF, 0) <= 0){
                 delete[] buffer;
-                delete[] buf;
                 return 0;
             }
         }
     }
-    delete[] buf;
     delete[] buffer;
     return sizeSent;
 }
@@ -135,16 +147,16 @@ unsigned long myrecv(int socket, std::string * data) {
 
         if (sizeReceived > 0) {
             totalReceived += sizeReceived;
-            data->append(buffer);
-
+            *data += buffer;
+            //std::cout << "received: " << *data << std::endl;
             if(buffer[sizeReceived-1] == '\0'){ //end of message :D
                 endOfStringFound = true;
             }
             else{ //continue receiving, send confirmation :D
-                send(socket, buffer, BUF, 0);
+                send(socket, "\0", BUF, 0); //vorher buffer gesendet
             }
         } else{
-            std::cout << "Client closed remote socket, or recv failure" << std::endl;
+            std::cout << "Server closed remote socket, or recv failure!" << std::endl;
             return 0;
         }
     }while(!endOfStringFound);

@@ -27,11 +27,11 @@ string SendMessage::execute() {
     boost::uuids::uuid new_Filename = gen();
     std::string filename = boost::lexical_cast<std::string> (new_Filename);
     string path_to_file = string(MESSAGEDIR) + '/' + receiver + '/' + filename +  ".txt";
-
+    string path_to_attachment_dir = string(MESSAGEDIR) + '/' + receiver + "/attachments"; //ToDo: make that a define
+    string path_to_attachment = path_to_attachment_dir + '/' + attachmentFileName;
     ///convert all strings into char * for functions opendir, mkdir, fprintf
     const char * path = path_of_Directory.c_str();
     const char * path_to_File = path_to_file.c_str();
-
     ///check if the directory is available, if not - create new
     DIR* test = opendir(path);
     if(test == nullptr){
@@ -48,10 +48,30 @@ string SendMessage::execute() {
     ///write all information into the mail-txt file.
     mail << "Sender: " << user->getUsername() << endl;
     mail << "Subject: " << subject;
+    mail << "attachment: " << attachmentFileName << endl;
     mail << message_final;
 
     ///close the file
     mail.close();
+
+    DIR* test2 = opendir(path_to_attachment_dir.c_str());
+    if(test2 == nullptr){
+        mkdir(path_to_attachment_dir.c_str(), 0777);
+        cout << "attdir erstellt: " << path_to_attachment_dir << endl;
+    }
+    else{
+        closedir(test);
+    }
+
+    ///open the file with the unique path
+    fstream am;
+    am.open(path_to_attachment, fstream::out);
+
+    ///write all information into the mail-txt file.
+    am << attachment;
+    cout << "att geschrieben: " << attachment << endl;
+    ///close the file
+    am.close();
 
     statusMessage = SUCCESS;
     return "Message sent!\n";
@@ -72,14 +92,42 @@ bool SendMessage::fillMe(string message) {
                 statusMessage = "Invalid Receiver - Min 1 Character andi Max 8 Characters";
                 return false;
             case 2:
-                ///check if the 3rd input is correct, has to be the subject and not longer as 80 characters
+                ///check if the 2nd input is correct, has to be the subject and not longer as 80 characters
                 if(message.length() <= 81){
                     subject = message;
                     index ++;
-                    statusMessage = "Message-Line: ";
+                    statusMessage = "Attachment (press just ENTER for no attachment) : ";
                     return true;
                 }
                 statusMessage = "Invalid Subject - Max 80 Characters!";
+                return false;
+            case 3:
+                ///check if the 3rd input is correct, has to be the filename and not longer then 250 characters
+                if(message.length() <= 250){
+                    attachmentFileName = message;
+                    attachmentFileName.pop_back(); // erase \n at end
+                    if(message != "\n"){ //if filename was given
+                        statusMessage = "send_me_this_file: \n" + attachmentFileName;
+                    }
+                    else{
+                        statusMessage = "Message-Line: ";
+                        index ++; //no need for reading file
+                    }
+                    index ++;
+
+                    return true;
+                }
+                statusMessage = "Invalid filename - Max 250 Characters!";
+                return false;
+            case 4:
+                ///check if the 4rd input is correct, has to be the contents of the file and longer then 1 character
+                if(message.length() > 1){
+                    attachment = message;
+                    statusMessage = "Message-Line: ";
+                    index ++;
+                    return true;
+                }
+                statusMessage = "Invalid file, must be longer than 1 byte";
                 return false;
             default:
                 ///the last input is the message. At each new line the message gets added to the messages before.
@@ -87,7 +135,7 @@ bool SendMessage::fillMe(string message) {
                 return true;
         }
     }/// check if the index is 4 and all steps are done succesfully - if yes set the server status to "ready of execute" and return true
-    else if(index == 3){
+    else if(index == 5){
         statusMessage = EXECUTEPENDING;
         return false;
     }else{

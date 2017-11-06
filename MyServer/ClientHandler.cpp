@@ -60,7 +60,8 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                         //ToDo: add help-loggedout command here :D
                     }else if (strncasecmp(bufferStr.c_str(), "login", 5) == 0) {
                         command = new LdapLogin(MESSAGEDIR, user);
-                    }else{
+                    }
+                    else{
                         commandMatched = false;
                         commandResult = "No matching command found, please login first, or get help!";
                     }
@@ -81,9 +82,9 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
             }
 
             if(!commandMatched){//No commands matched
-                char message[] = "placeholder";
-                send(sock, FAILURE, strlen(FAILURE)+1, 0);
-                recv(sock, message, strlen(message), 0); //always wait for confirmation
+                string status = FAILURE;
+                mysend(sock, &status);
+                myrecv(sock, &status); //always wait for confirmation
                 mysend(sock, &commandResult);
             }
             else{ //if command was matched - get all the parameters and execute
@@ -98,6 +99,7 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
 
                         mysend(sock, &confirmation);
                         myrecv(sock, &bufferStr);
+                        //cout << "Message received<" << bufferStr << ">" << endl;
 
                     } while (command->fillMe(bufferStr)); //Fill Command with parameters till its satisfied previously filled with buffer;
                 }
@@ -113,10 +115,11 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                     commandResult = command->getStatus() + "\n"; //save the status as command result
 
                     //send Error to the client:
-                    send(sock, FAILURE, strlen(FAILURE)+1, 0); //send command status
+                    string status = FAILURE;
+                    mysend(sock, &status);
                 }
                 char message[] = "placeholder";
-                recv(sock, message, strlen(message), 0); //always wait for confirmation
+                myrecv(sock, &bufferStr); //always wait for confirmation
                 mysend(sock, &commandResult);
             }
 
@@ -141,23 +144,21 @@ unsigned long ClientHandler::mysend(int socket, const string * data) {
     unsigned long sizeSent = 0;
 
     auto * buffer = new char[size];
-    auto * buf = new char[size];
+    char buf [BUF];
     strcpy(buffer, data->c_str());
 
     while(sizeSent < size){
-        sizeSent += send(socket, &buffer[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //not sure if calculation is right ^^
-
+        sizeSent += send(socket, &buffer[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //not sure if calculation is right ^^ -> seems ok
+        //std::cout << "sent: " << sizeSent << " from " << size << std::endl;
         //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
         if(sizeSent < size){
-            if(recv(socket, buf , sizeof(char*), 0) <= 0){
+            if(recv(socket, buf , BUF, 0) <= 0){
                 delete[] buffer;
-                delete[] buf;
                 return 0;
             }
         }
     }
     delete[] buffer;
-    delete[] buf;
     return sizeSent;
 }
 
@@ -174,13 +175,13 @@ unsigned long ClientHandler::myrecv(int socket, string * data) {
 
         if (sizeReceived > 0) {
             totalReceived += sizeReceived;
-            data->append(buffer);
-
+            *data += buffer;
+            //std::cout << "received: " << totalReceived << std::endl;
             if(buffer[sizeReceived-1] == '\0'){ //end of message :D
                 endOfStringFound = true;
             }
             else{ //continue receiving, send confirmation :D
-                send(socket, buffer, BUF, 0);
+                send(socket, "\0", BUF, 0); //vorher buffer gesendet
             }
         } else{
             cout << "Client closed remote socket, or recv failure" << endl;
