@@ -26,7 +26,7 @@ string SendMessage::execute() {
     ///build a unique path to the mail txt file
     boost::uuids::uuid new_Filename = gen();
     std::string filename = boost::lexical_cast<std::string> (new_Filename);
-    string path_to_file = string(MESSAGEDIR) + '/' + receiver + '/' + filename +  ".txt";
+    string path_to_file = string(MESSAGEDIR) + '/' + receiver + '/' + to_string(ms.count()) + filename +  ".txt";
     string path_to_attachment_dir = string(MESSAGEDIR) + '/' + receiver + "/attachments"; //ToDo: make that a define
     string path_to_attachment = path_to_attachment_dir + '/' + attachmentFileName;
     ///convert all strings into char * for functions opendir, mkdir, fprintf
@@ -57,19 +57,19 @@ string SendMessage::execute() {
     DIR* test2 = opendir(path_to_attachment_dir.c_str());
     if(test2 == nullptr){
         mkdir(path_to_attachment_dir.c_str(), 0777);
-        cout << "attdir erstellt: " << path_to_attachment_dir << endl;
     }
     else{
         closedir(test);
     }
 
-    ///open the file with the unique path
+    ///open the file
     fstream am;
-    am.open(path_to_attachment, fstream::out);
+    am.open(path_to_attachment, fstream::out | std::ios::binary);
 
-    ///write all information into the mail-txt file.
-    am << attachment;
-    cout << "att geschrieben: " << attachment << endl;
+    ///write all information into the attachment file.
+    std::cout << dataLength<<endl;
+    std::cout << "data:" << data <<endl;
+    am.write(*data, dataLength);
     ///close the file
     am.close();
 
@@ -90,6 +90,7 @@ bool SendMessage::fillMe(string message) {
                     return true;
                 }
                 statusMessage = "Invalid Receiver - Min 1 Character andi Max 8 Characters";
+                index = 1;
                 return false;
             case 2:
                 ///check if the 2nd input is correct, has to be the subject and not longer as 80 characters
@@ -100,10 +101,11 @@ bool SendMessage::fillMe(string message) {
                     return true;
                 }
                 statusMessage = "Invalid Subject - Max 80 Characters!";
+                index = 1;
                 return false;
             case 3:
                 ///check if the 3rd input is correct, has to be the filename and not longer then 250 characters
-                if(message.length() <= 250){
+                if(message.length() <= 255){
                     attachmentFileName = message;
                     attachmentFileName.pop_back(); // erase \n at end
                     if(message != "\n"){ //if filename was given
@@ -117,18 +119,13 @@ bool SendMessage::fillMe(string message) {
 
                     return true;
                 }
-                statusMessage = "Invalid filename - Max 250 Characters!";
+                statusMessage = "Invalid filename - Max 255 Characters!";
+                index = 1;
                 return false;
             case 4:
-                ///check if the 4rd input is correct, has to be the contents of the file and longer then 1 character
-                if(message.length() > 1){
-                    attachment = message;
-                    statusMessage = "Message-Line: ";
-                    index ++;
-                    return true;
-                }
-                statusMessage = "Invalid file, must be longer than 1 byte";
-                return false;
+                index ++;
+                statusMessage = "Message-Line: ";
+                return true;
             default:
                 ///the last input is the message. At each new line the message gets added to the messages before.
                 message_final += message;
@@ -137,10 +134,12 @@ bool SendMessage::fillMe(string message) {
     }/// check if the index is 4 and all steps are done succesfully - if yes set the server status to "ready of execute" and return true
     else if(index == 5){
         statusMessage = EXECUTEPENDING;
+        index = 1;
         return false;
     }else{
         ///if something went wront in the steps above - return false and give the client the information about invalid input.
         statusMessage = "Invalid Input - Operation cancelled!";
+        index = 1;
         return false;
     }
 }

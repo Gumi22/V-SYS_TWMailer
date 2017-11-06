@@ -34,6 +34,8 @@ public:
     unsigned long mysend(int, const string*);
     unsigned long myrecv(int, string*);
 
+    unsigned long myrecv(int , char ** );
+
     void clientLoop(int, string, string);
     std::thread handleThisClient(int, string, string);
 

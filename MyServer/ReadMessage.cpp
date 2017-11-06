@@ -21,6 +21,7 @@ bool ReadMessage::fillMe(string parameter) {
         }
         else{
             statusMessage = "Invalid Message Number - Must be integer bigger than 0!";
+            ParameterCount = 0;
             return false;
         }
     }
@@ -30,6 +31,7 @@ bool ReadMessage::fillMe(string parameter) {
 }
 
 string ReadMessage::execute() {
+    ParameterCount = 0;
     string result = "";
     int count = 0;
     string dir = string(MESSAGEDIR) + "/" + user->getUsername();

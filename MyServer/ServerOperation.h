@@ -21,6 +21,8 @@ class ServerOperation {
 protected:
     string statusMessage;
     User* user;
+    char** data; //optional Data that the operation needs
+    unsigned long dataLength; //optional Data size
     //ToDo: Put this in Config file
     const char * MESSAGEDIR;
     const char SUCCESS[4] = "OK\n";
@@ -37,6 +39,9 @@ public:
     virtual bool fillMe(string) = 0;
 
     string getStatus();
+    void setData(char**, unsigned long);
+    char** getData();
+    unsigned long getDataLength();
 
     //Executes the operation returns the server response as a string
     virtual string execute() = 0;

@@ -24,6 +24,7 @@ bool LdapLogin::fillMe(std::string input) {
                 return true;
             }else{
                 statusMessage = "Invalid Username - MIN 1 Character and MAX 8 Characters!!!";
+                parameter_count = 0;
                 return false;
             }
         case 1:
@@ -38,14 +39,17 @@ bool LdapLogin::fillMe(std::string input) {
                     }
                 }
                 statusMessage = EXECUTEPENDING;
+                parameter_count = 0;
                 return false;
             }else{
                 statusMessage = "Password need to be MIN 8 characters!!";
+                parameter_count = 0;
                 return false;
             }
         default:
             ///just because the IDE was crying that there is no default :D never reach this default case
             statusMessage = "You failed as fuck! Go home and cry! :D";
+            parameter_count = 0;
             return false;
     }
 }

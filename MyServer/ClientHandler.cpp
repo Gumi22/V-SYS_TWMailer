@@ -22,6 +22,7 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
     User* user = new User(clientIP, clientPort);
 
     string bufferStr;
+    char** data = new char*;
     long size;
 
     string commandResult;
@@ -98,7 +99,20 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                         string confirmation = command->getStatus();
 
                         mysend(sock, &confirmation);
-                        myrecv(sock, &bufferStr);
+                        if(strncasecmp(confirmation.c_str(), "send_me_this_file: \n", 20) == 0){ //If I sent filerequest use different read
+
+                            unsigned long sizeOfData = myrecv(sock, data);
+                            cout << "4-" << endl;
+                            //cout << string(*data);
+                            cout << "5-" << endl;
+                            command->setData(data, sizeOfData);
+                            bufferStr = "Message: ";
+                            confirmation = "O";
+                            //command->fillMe("");
+                        }
+                        else{
+                            myrecv(sock, &bufferStr); //Use other receive
+                        }
                         //cout << "Message received<" << bufferStr << ">" << endl;
 
                     } while (command->fillMe(bufferStr)); //Fill Command with parameters till its satisfied previously filled with buffer;
@@ -129,6 +143,7 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
             break;
         } else {
             delete user;
+            delete[] data;
             close(sock);
             cerr << "recv error" << endl;
             return;// EXIT_FAILURE;
@@ -136,6 +151,7 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
     } while (strncmp(commandResult.c_str(), "quit\n", 5) != 0);
     cout << "User " << user->getUsername() << "quit from address: " << user->getIPAddressAndPort() << "\n";
     delete user;
+    delete[] data;
     close(sock);
 }
 
@@ -188,5 +204,50 @@ unsigned long ClientHandler::myrecv(int socket, string * data) {
             return 0;
         }
     }while(!endOfStringFound);
+    return totalReceived;
+}
+
+unsigned long ClientHandler::myrecv(int socket, char **data) {
+    vector<char> byteBuffer;
+
+    ssize_t sizeReceived = 0;
+    unsigned long totalReceived = 0;
+    char buffer[BUF];
+
+    //receive file size from client:
+    recv(socket, buffer, BUF, 0);
+    char* lol;
+    long size = strtol(buffer, &lol, 10);
+    send(socket, "\0", BUF, 0); //send confirmation
+
+
+    do{
+        //receive next line
+        sizeReceived = recv(socket, buffer, BUF, 0);
+        std::cout << sizeReceived << std::endl;
+        if (sizeReceived > 0) {
+            totalReceived += sizeReceived;
+            for(int i = 0; i < sizeReceived; i++){
+                byteBuffer.push_back(buffer[i]);
+            }
+            send(socket, "\0", BUF, 0); //send confirmation
+        }
+        else if (sizeReceived == 0){ //not received anything
+            break;
+        }else{
+            cout << "Client closed remote socket, or recv failure" << endl;
+            return 0;
+        }
+    }while(byteBuffer.size() < size);
+    //copy received data to our array
+    if(*data != nullptr){
+        delete[] *data;
+    }
+    cout << "1" << endl;
+    *data = new char[totalReceived];
+    cout << "2" << endl;
+    copy(byteBuffer.begin(), byteBuffer.end(), *data);
+    cout << "3" << endl;
+
     return totalReceived;
 }

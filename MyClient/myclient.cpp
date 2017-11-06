@@ -11,10 +11,14 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <vector>
+
 #define BUF 1024
 
 unsigned long myrecv(int, std::string *);
 unsigned long mysend(int, const std::string *);
+
+unsigned long mysend(int ,char * , unsigned long );
 
 bool connectSocket(int&, char*, u_int16_t);
 
@@ -72,14 +76,25 @@ int main (int argc, char **argv) {
             }
             else if(strncasecmp(bufferStr.c_str(), "send_me_this_file: \n", 20) == 0){
                 std::string fileName = bufferStr.substr(20);
-                std::cout << fileName << " wird gesendet!" << std::endl;
 
                 //file öffnen und inhalte kopieren :D
                 std::ifstream file(fileName, std::ios::binary);
-                bufferStr.assign( (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()) );
-                bufferStr.append("\0");
+
+                std::vector<char> fileBytes;
+
+                fileBytes.assign( (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()) );
+
+                char* buf = new char[fileBytes.size()];
+
+                copy(fileBytes.begin(), fileBytes.end(), buf);
+
+                mysend(create_socket, buf, fileBytes.size());
+
 
                 file.close();
+                myrecv(create_socket, &bufferStr);
+
+                delete[] buf;
                 //std::cout << bufferStr;
 
             }
@@ -131,6 +146,30 @@ unsigned long mysend(int socket, const std::string * data) {
         }
     }
     delete[] buffer;
+    return sizeSent;
+}
+
+unsigned long mysend(int socket,char * data, unsigned long size) {
+
+    unsigned long sizeSent = 0;
+    char buf [BUF];
+    //Send size of file first:
+    send(socket, std::to_string(size).c_str(), std::to_string(size).length(), 0);
+    //receive confirmation
+    recv(socket, buf , BUF, 0);
+
+    while(sizeSent < size){
+        sizeSent += send(socket, &data[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //not sure if calculation is right ^^ -> seems ok
+        std::cout << sizeSent << std::endl;
+
+        //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
+        if(sizeSent < size){
+            if(recv(socket, buf , BUF, 0) <= 0){
+                return 0;
+            }
+        }
+    }
+
     return sizeSent;
 }
 
