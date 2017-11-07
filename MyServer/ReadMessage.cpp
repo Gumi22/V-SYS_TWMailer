@@ -87,7 +87,6 @@ string ReadMessage::peek() {
     while((userDirEntry = readdir(userDir)) != nullptr && count <= MessageNumber){
         //only read regular files
         if(userDirEntry->d_type == DT_REG){
-            //ToDo: look if filename ends with .msg or .txt
             messageFile.open(dir + "/" + userDirEntry->d_name);
             if(messageFile.is_open()){
                 //count as countable file
