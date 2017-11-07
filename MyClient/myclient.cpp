@@ -88,55 +88,44 @@ int main (int argc, char **argv) {
                 char* buf = new char[fileBytes.size()];
                 copy(fileBytes.begin(), fileBytes.end(), buf);
 
-                mysend(create_socket, buf, fileBytes.size());
+                mysend(create_socket, buf, fileBytes.size()); //send file
 
                 file.close();
-                myrecv(create_socket, &bufferStr);
+                std::string nice;
+                myrecv(create_socket, &nice); //revćeive confirmation
                 delete[] buf;
             }
             else if(strncasecmp(bufferStr.c_str(), "save_this_file: \n", 17) == 0){
-                std::cout << 1 << std::endl;
                 std::string fileAndPath = bufferStr.substr(17);
-                std::string fileName = fileAndPath.substr(fileAndPath.find_last_of('/')+1); //only need fileName
+                std::string fileName = fileAndPath.substr(fileAndPath.find_last_of(" as ")+1); //only need fileName
 
                 char** data = new char*;
                 mysend(create_socket, &bufferStr); //send confirmation
-                std::cout << "2:" << fileName  << ">" << std::endl;
-                int i = myrecv(create_socket, data);
+                unsigned long i = myrecv(create_socket, data);
                 if(i > 0) //get data if there was any
                 {
-
-                    std::cout << "3" << std::endl;
                     ///open the file
                     std::fstream am;
                     am.open(fileName, std::fstream::out | std::ios::binary);
 
                     ///write all information into the attachment file.
-                    std::cout << i << std::endl;
-                    std::cout << "data:" << data << std::endl;
                     am.write(*data, i);
                     ///close the file
                     am.close();
 
                 }
-                std::cout << "3" << std::endl;
-                mysend(create_socket, &bufferStr); //send confirmation
-                std::cout << "4" << std::endl;
+                bufferStr = "placeholder";
             }
             else{
                 getline(std::cin, bufferStr);
                 bufferStr.append("\n");
             }
-            mysend(create_socket, &bufferStr);
-            std::cout << "5" << std::endl;
-            //receive response
-            myrecv(create_socket, &bufferStr);
-            std::cout << "6" << std::endl;
+            mysend(create_socket, &bufferStr);//send parameter of command
+            myrecv(create_socket, &bufferStr);//receive next parameter of command
         }
 
-        //override received status message with result:
         mysend(create_socket, &bufferStr); //send confirmation
-        myrecv(create_socket, &bufferStr);
+        myrecv(create_socket, &bufferStr); //get result of command!!!!
 
         //quit if command is quit
         if(strcmp (bufferStr.c_str(), "quit\n") == 0){
@@ -145,6 +134,7 @@ int main (int argc, char **argv) {
 
         //Print only result
         std::cout << bufferStr.c_str() << std::endl;
+        //ask for next command;
         std::cout << "Please enter your command: " << std::endl;
 
     } while (true);
@@ -182,13 +172,12 @@ unsigned long mysend(int socket,char * data, unsigned long size) {
     unsigned long sizeSent = 0;
     char buf [BUF];
     //Send size of file first:
-    send(socket, std::to_string(size).c_str(), std::to_string(size).length(), 0);
+    send(socket, std::to_string(size).c_str(), BUF, 0);
     //receive confirmation
     recv(socket, buf , BUF, 0);
 
     while(sizeSent < size){
-        sizeSent += send(socket, &data[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //not sure if calculation is right ^^ -> seems ok
-        std::cout << sizeSent << std::endl;
+        sizeSent += send(socket, &data[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //calculate needed size and send
 
         //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
         if(sizeSent < size){
@@ -215,7 +204,6 @@ unsigned long myrecv(int socket, std::string * data) {
         if (sizeReceived > 0) {
             totalReceived += sizeReceived;
             *data += buffer;
-            //std::cout << "received: " << *data << std::endl;
             if(buffer[sizeReceived-1] == '\0'){ //end of message :D
                 endOfStringFound = true;
             }
@@ -247,13 +235,14 @@ unsigned long myrecv(int socket, char **data) {
     do{
         //receive next line
         sizeReceived = recv(socket, buffer, BUF, 0);
-        std::cout << sizeReceived << std::endl;
         if (sizeReceived > 0) {
             totalReceived += sizeReceived;
             for(int i = 0; i < sizeReceived; i++){
                 byteBuffer.push_back(buffer[i]);
             }
-            send(socket, "\0", BUF, 0); //send confirmation
+            if(byteBuffer.size() < size){
+                send(socket, "\0", BUF, 0); //send confirmation
+            }
         }
         else if (sizeReceived == 0){ //not received anything
             break;

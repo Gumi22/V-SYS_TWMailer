@@ -28,7 +28,7 @@ string SendMessage::execute() {
     std::string filename = boost::lexical_cast<std::string> (new_Filename);
     string path_to_file = string(MESSAGEDIR) + '/' + receiver + '/' + to_string(ms.count()) + filename +  ".txt";
     string path_to_attachment_dir = string(MESSAGEDIR) + '/' + receiver + "/attachments"; //ToDo: make that a define
-    string path_to_attachment = path_to_attachment_dir + '/' + attachmentFileName;
+    string path_to_attachment = path_to_attachment_dir + '/' + filename;
     ///convert all strings into char * for functions opendir, mkdir, fprintf
     const char * path = path_of_Directory.c_str();
     const char * path_to_File = path_to_file.c_str();
@@ -48,7 +48,7 @@ string SendMessage::execute() {
     ///write all information into the mail-txt file.
     mail << "Sender: " << user->getUsername() << endl;
     mail << "Subject: " << subject;
-    mail << "attachment: " << attachmentFileName << endl;
+    mail << "attachment: " << filename << " as " << attachmentFileName << endl;
     mail << message_final;
 
     ///close the file
@@ -68,8 +68,6 @@ string SendMessage::execute() {
         am.open(path_to_attachment, fstream::out | std::ios::binary);
 
         ///write all information into the attachment file.
-        std::cout << dataLength<<endl;
-        std::cout << "data:" << data <<endl;
         am.write(*data, dataLength);
         ///close the file
         am.close();

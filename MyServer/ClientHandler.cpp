@@ -36,7 +36,7 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
         size = myrecv(sock, &bufferStr);
 
         if (size > 0) {
-            cout << "Message received: " << bufferStr << endl;
+            cout << "Command received: <" << bufferStr.substr(0,bufferStr.find_last_of('\n')) << "> from user" << user->getUsername() << endl;
             commandMatched = true; //we expect a real command, so reset it to true every command call
 
             if(!user->isTimedOut()){//Commands user can Access if not timed out:
@@ -103,26 +103,15 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
 
                             unsigned long sizeOfData = myrecv(sock, data);
                             command->setData(data, sizeOfData);
-                            bufferStr = "Message: ";
-                            confirmation = "O";
                         }
                         else if(strncasecmp(confirmation.c_str(), "save_this_file: \n", 17) == 0){ //If I sent filesaverequest use different send
-                            cout << 1 << endl;
                             myrecv(sock, &bufferStr); //get confirmation
-                            cout << 2 << endl;
-                            if(sendFile(sock, &confirmation) != 0); //send the file in binary
-                            {
-                                cout << 3 << endl;
-                                myrecv(sock, &bufferStr); //get confirmation
-                            }
-                            cout << 4 << endl;
-                            bufferStr = "Message: ";
-                            confirmation = "O";
+                            sendFile(sock, &confirmation);//send the file in binary
+                            myrecv(sock, &bufferStr); //get confirmation
                         }
                         else{
                             myrecv(sock, &bufferStr); //Use other receive
                         }
-                        //cout << "Message received<" << bufferStr << ">" << endl;
 
                     } while (command->fillMe(bufferStr)); //Fill Command with parameters till its satisfied previously filled with buffer;
                 }
@@ -173,8 +162,7 @@ unsigned long ClientHandler::mysend(int socket, const string * data) {
     strcpy(buffer, data->c_str());
 
     while(sizeSent < size){
-        sizeSent += send(socket, &buffer[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //not sure if calculation is right ^^ -> seems ok
-        //std::cout << "sent: " << sizeSent << " from " << size << std::endl;
+        sizeSent += send(socket, &buffer[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); // calculation of lenght and send
         //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
         if(sizeSent < size){
             if(recv(socket, buf , BUF, 0) <= 0){
@@ -201,7 +189,6 @@ unsigned long ClientHandler::myrecv(int socket, string * data) {
         if (sizeReceived > 0) {
             totalReceived += sizeReceived;
             *data += buffer;
-            //std::cout << "received: " << totalReceived << std::endl;
             if(buffer[sizeReceived-1] == '\0'){ //end of message :D
                 endOfStringFound = true;
             }
@@ -233,13 +220,14 @@ unsigned long ClientHandler::myrecv(int socket, char **data) {
     do{
         //receive next line
         sizeReceived = recv(socket, buffer, BUF, 0);
-        std::cout << sizeReceived << std::endl;
         if (sizeReceived > 0) {
             totalReceived += sizeReceived;
             for(int i = 0; i < sizeReceived; i++){
                 byteBuffer.push_back(buffer[i]);
             }
-            send(socket, "\0", BUF, 0); //send confirmation
+            if(byteBuffer.size() < size){
+                send(socket, "\0", BUF, 0); //send confirmation
+            }
         }
         else if (sizeReceived == 0){ //not received anything
             break;
@@ -269,7 +257,6 @@ unsigned long ClientHandler::mysend(int socket,char * data, unsigned long size) 
 
     while(sizeSent < size){
         sizeSent += send(socket, &data[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //not sure if calculation is right ^^ -> seems ok
-        std::cout << sizeSent << std::endl;
 
         //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
         if(sizeSent < size){
@@ -283,10 +270,12 @@ unsigned long ClientHandler::mysend(int socket,char * data, unsigned long size) 
 }
 
 bool ClientHandler::sendFile(int sock, string * path) {
-    std::string fileName = path->substr(17);
-    cout << fileName << endl;
+    std::string PathAndFilename = path->substr(17); //get path + as + filename
+    string delim = " as ";//delimiter between readl filename and user filename
+
     //file öffnen und Inhalte kopieren :D
-    std::ifstream file(fileName, std::ios::binary);
+    std::ifstream file(PathAndFilename.substr(0, PathAndFilename.find(delim.c_str())), std::ios::binary);
+
     std::vector<char> fileBytes;
     fileBytes.assign( (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()) );
     char* buf = new char[fileBytes.size()];

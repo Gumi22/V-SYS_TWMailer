@@ -27,7 +27,7 @@ bool ReadMessage::fillMe(string parameter) {
             getline(ss, line);
             getline(ss, line);
             getline(ss, line); //get the attachment name
-            result = line.substr(line.find(' ')+1);
+            result = line.substr(line.find("attachment: ")+12); //get everything after "attachment: "
 
             statusMessage = string("save_this_file: \n");
             if(result != ""){
