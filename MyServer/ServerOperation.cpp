@@ -14,12 +14,12 @@ ServerOperation::ServerOperation(const char *directory, User* usr) {
 
 string ServerOperation::getStatus() {return statusMessage;}
 
-void ServerOperation::setData(char ** dat, unsigned long length) {
+void ServerOperation::setData(vector<char>& dat, unsigned long length) {
     data = dat;
     dataLength = length;
 }
 
-char **ServerOperation::getData() {
+vector<char>& ServerOperation::getData() {
     return data;
 }
 

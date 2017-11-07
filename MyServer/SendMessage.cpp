@@ -71,7 +71,11 @@ string SendMessage::execute() {
         am.open(path_to_attachment, fstream::out | std::ios::binary);
 
         ///write all information into the attachment file.
-        am.write(*data, dataLength);
+        auto* byteData = new char[dataLength];
+        std::copy(data.begin(), data.end(), byteData);
+
+        am.write(byteData, dataLength);
+        delete[] byteData;
         ///close the file
         am.close();
     }

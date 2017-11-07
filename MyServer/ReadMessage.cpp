@@ -32,7 +32,6 @@ bool ReadMessage::fillMe(string parameter) {
             statusMessage = string("save_this_file: \n");
             if(!result.empty()){
                 statusMessage += "messages/" + user->getUsername() + "/attachments/" + result ;
-                cout << statusMessage;
             }
         }
         else{
@@ -55,7 +54,7 @@ string ReadMessage::execute() {
     ParameterCount = 0;
     string result = peek();
 
-    if(!result.empty()){
+    if(result.empty()){
         statusMessage = FAILURE;
         result = "No matching file found.\n";
     }

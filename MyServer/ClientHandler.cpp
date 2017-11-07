@@ -22,7 +22,8 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
     User* user = new User(clientIP, clientPort);
 
     string bufferStr;
-    char** data = new char*;
+    vector<char> _data;
+
     long size;
 
     string commandResult;
@@ -62,6 +63,8 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                     }else if (strncasecmp(bufferStr.c_str(), "login", 5) == 0) {
                         command = new LdapLogin(MESSAGEDIR, user);
                     }
+
+
                     else{
                         commandMatched = false;
                         commandResult = "No matching command found, please login first, or get help!";
@@ -101,8 +104,8 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                         mysend(sock, &confirmation);
                         if(strncasecmp(confirmation.c_str(), "send_me_this_file: \n", 20) == 0){ //If I sent filerequest use different read
 
-                            unsigned long sizeOfData = myrecv(sock, data);
-                            command->setData(data, sizeOfData);
+                            unsigned long sizeOfData = myrecv(sock, _data);
+                            command->setData(_data, sizeOfData);
                         }
                         else if(strncasecmp(confirmation.c_str(), "save_this_file: \n", 17) == 0){ //If I sent filesaverequest use different send
                             myrecv(sock, &bufferStr); //get confirmation
@@ -140,7 +143,6 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
             break;
         } else {
             delete user;
-            delete[] data;
             close(sock);
             cerr << "recv error" << endl;
             return;// EXIT_FAILURE;
@@ -148,7 +150,6 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
     } while (strncmp(commandResult.c_str(), "quit\n", 5) != 0);
     cout << "User " << user->getUsername() << "quit from address: " << user->getIPAddressAndPort() << "\n";
     delete user;
-    delete[] data;
     close(sock);
 }
 
@@ -202,8 +203,8 @@ unsigned long ClientHandler::myrecv(int socket, string * data) {
     return totalReceived;
 }
 
-unsigned long ClientHandler::myrecv(int socket, char **data) {
-    vector<char> byteBuffer;
+unsigned long ClientHandler::myrecv(int socket, vector<char>& data) {
+    data.clear();
 
     ssize_t sizeReceived = 0;
     unsigned long totalReceived = 0;
@@ -216,15 +217,15 @@ unsigned long ClientHandler::myrecv(int socket, char **data) {
     send(socket, "\0", BUF, 0); //send confirmation
 
 
-    while((unsigned)byteBuffer.size() < size){
+    while((unsigned)data.size() < size){
         //receive next line
         sizeReceived = recv(socket, buffer, BUF, 0);
         if (sizeReceived > 0) {
             totalReceived += sizeReceived;
             for(int i = 0; i < sizeReceived; i++){
-                byteBuffer.push_back(buffer[i]);
+                data.push_back(buffer[i]);
             }
-            if((unsigned)byteBuffer.size() < size){
+            if((unsigned)data.size() < size){
                 send(socket, "\0", BUF, 0); //send confirmation
             }
         }
@@ -236,29 +237,24 @@ unsigned long ClientHandler::myrecv(int socket, char **data) {
         }
     }
     //copy received data to our array
-    if(*data != nullptr){
-        delete[] *data;
-    }
-    *data = new char[totalReceived];
-    copy(byteBuffer.begin(), byteBuffer.end(), *data);
 
     return totalReceived;
 }
 
-unsigned long ClientHandler::mysend(int socket,char * data, unsigned long size) {
+unsigned long ClientHandler::mysend(int socket, vector<char>& data) {
 
     unsigned long sizeSent = 0;
     char buf [BUF];
     //Send size of file first:
-    send(socket, std::to_string(size).c_str(), std::to_string(size).length(), 0);
+    send(socket, std::to_string(data.size()).c_str(), std::to_string(data.size()).length(), 0);
     //receive confirmation
     recv(socket, buf , BUF, 0);
 
-    while(sizeSent < size){
-        sizeSent += send(socket, &data[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //not sure if calculation is right ^^ -> seems ok
+    while(sizeSent < data.size()){
+        sizeSent += send(socket, &data[sizeSent], (BUF < data.size() - sizeSent) ? BUF : data.size() - sizeSent, 0); //not sure if calculation is right ^^ -> seems ok
 
         //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
-        if(sizeSent < size){
+        if(sizeSent < data.size()){
             if(recv(socket, buf , BUF, 0) <= 0){
                 return 0;
             }
@@ -277,16 +273,15 @@ bool ClientHandler::sendFile(int sock, string * path) {
 
     std::vector<char> fileBytes;
     fileBytes.assign( (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()) );
-    auto* buf = new char[fileBytes.size()];
-    copy(fileBytes.begin(), fileBytes.end(), buf);
+
     if(fileBytes.empty()){
-        mysend(sock, (char*)string("corrupted").c_str(), string("corrupted").length()+1);
+        string temp = "corrupted";
+        mysend(sock, &temp);
         return false;
     }
-    mysend(sock, buf, fileBytes.size());
+    mysend(sock, fileBytes);
 
     file.close();
-    delete[] buf;
 
     return true;
 }

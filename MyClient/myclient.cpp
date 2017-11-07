@@ -18,8 +18,8 @@
 unsigned long myrecv(int, std::string *);
 unsigned long mysend(int, const std::string *);
 
-unsigned long mysend(int, char * , unsigned long );
-unsigned long myrecv(int, char **);
+unsigned long mysend(int, std::vector<char>&);
+unsigned long myrecv(int, std::vector<char>&);
 
 bool connectSocket(int&, char*, u_int16_t);
 
@@ -84,31 +84,31 @@ int main (int argc, char **argv) {
                 std::ifstream file(fileName, std::ios::binary);
                 std::vector<char> fileBytes;
                 fileBytes.assign( (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()) );
-                auto* buf = new char[fileBytes.size()];
-                copy(fileBytes.begin(), fileBytes.end(), buf);
 
-                mysend(create_socket, buf, fileBytes.size()); //send file
+                mysend(create_socket, fileBytes); //send file
 
                 file.close();
                 std::string nice;
-                myrecv(create_socket, &nice); //revćeive confirmation
-                delete[] buf;
+                myrecv(create_socket, &nice); //receive confirmation
             }
             else if(strncasecmp(bufferStr.c_str(), "save_this_file: \n", 17) == 0){
                 std::string fileAndPath = bufferStr.substr(17);
                 std::string fileName = fileAndPath.substr(fileAndPath.find_last_of(" as ")+1); //only need fileName
                 bufferStr = "";
-                auto** data = new char*;
+                std::vector<char> data;
                 mysend(create_socket, &bufferStr); //send confirmation
-                unsigned long i = myrecv(create_socket, data);
+                unsigned long i = myrecv(create_socket, data); //receive file
                 if(i > 0) //get data if there was any
                 {
                     ///open the file
                     std::fstream am;
                     am.open(fileName, std::fstream::out | std::ios::binary);
 
+                    auto* byteData = new char[i];
+                    std::copy(data.begin(), data.end(), byteData);
+
                     ///write all information into the attachment file.
-                    am.write(*data, i);
+                    am.write(byteData, i);
                     ///close the file
                     am.close();
 
@@ -169,29 +169,6 @@ unsigned long mysend(int socket, const std::string * data) {
     return sizeSent;
 }
 
-unsigned long mysend(int socket,char * data, unsigned long size) {
-
-    unsigned long sizeSent = 0;
-    char buf [BUF];
-    //Send size of file first:
-    send(socket, std::to_string(size).c_str(), BUF, 0);
-    //receive confirmation
-    recv(socket, buf , BUF, 0);
-
-    while(sizeSent < size){
-        sizeSent += send(socket, &data[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //calculate needed size and send
-
-        //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
-        if(sizeSent < size){
-            if(recv(socket, buf , BUF, 0) <= 0){
-                return 0;
-            }
-        }
-    }
-
-    return sizeSent;
-}
-
 unsigned long myrecv(int socket, std::string * data) {
     data->clear();
     ssize_t sizeReceived = 0;
@@ -213,16 +190,15 @@ unsigned long myrecv(int socket, std::string * data) {
                 send(socket, "\0", BUF, 0); //vorher buffer gesendet
             }
         } else{
-            std::cout << "Server closed remote socket, or recv failure!" << std::endl;
-            *data = "quit\n";
+            std::cout << "Client closed remote socket, or recv failure" << std::endl;
             return 0;
         }
     }while(!endOfStringFound);
     return totalReceived;
 }
 
-unsigned long myrecv(int socket, char **data) {
-    std::vector<char> byteBuffer;
+unsigned long myrecv(int socket, std::vector<char>& data) {
+    data.clear();
 
     ssize_t sizeReceived = 0;
     unsigned long totalReceived = 0;
@@ -235,15 +211,15 @@ unsigned long myrecv(int socket, char **data) {
     send(socket, "\0", BUF, 0); //send confirmation
 
 
-    while((unsigned)byteBuffer.size() < size){
+    while((unsigned)data.size() < size){
         //receive next line
         sizeReceived = recv(socket, buffer, BUF, 0);
         if (sizeReceived > 0) {
             totalReceived += sizeReceived;
             for(int i = 0; i < sizeReceived; i++){
-                byteBuffer.push_back(buffer[i]);
+                data.push_back(buffer[i]);
             }
-            if((unsigned)byteBuffer.size() < size){
+            if((unsigned)data.size() < size){
                 send(socket, "\0", BUF, 0); //send confirmation
             }
         }
@@ -255,13 +231,31 @@ unsigned long myrecv(int socket, char **data) {
         }
     }
     //copy received data to our array
-    if(*data != nullptr){
-        delete[] *data;
-    }
-    *data = new char[totalReceived];
-    std::copy(byteBuffer.begin(), byteBuffer.end(), *data);
 
     return totalReceived;
+}
+
+unsigned long mysend(int socket, std::vector<char>& data) {
+
+    unsigned long sizeSent = 0;
+    char buf [BUF];
+    //Send size of file first:
+    send(socket, std::to_string(data.size()).c_str(), std::to_string(data.size()).length(), 0);
+    //receive confirmation
+    recv(socket, buf , BUF, 0);
+
+    while(sizeSent < data.size()){
+        sizeSent += send(socket, &data[sizeSent], (BUF < data.size() - sizeSent) ? BUF : data.size() - sizeSent, 0); //not sure if calculation is right ^^ -> seems ok
+
+        //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
+        if(sizeSent < data.size()){
+            if(recv(socket, buf , BUF, 0) <= 0){
+                return 0;
+            }
+        }
+    }
+
+    return sizeSent;
 }
 
 

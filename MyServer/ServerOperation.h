@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <string>
 #include <map>
+#include <vector>
 #include "User.h"
 
 
@@ -21,7 +22,7 @@ class ServerOperation {
 protected:
     string statusMessage;
     User* user;
-    char** data; //optional Data that the operation needs
+    vector<char> data; //optional Data that the operation needs
     unsigned long dataLength; //optional Data size
     //ToDo: Put this in Config file
     const char * MESSAGEDIR;
@@ -39,8 +40,8 @@ public:
     virtual bool fillMe(string) = 0;
 
     string getStatus();
-    void setData(char**, unsigned long);
-    char** getData();
+    void setData(vector<char>&, unsigned long);
+    vector<char>& getData();
     unsigned long getDataLength();
 
     //Executes the operation returns the server response as a string
