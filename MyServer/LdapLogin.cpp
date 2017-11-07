@@ -129,7 +129,6 @@ bool LdapLogin::login(std::string username, char* password) {
 
 string LdapLogin::execute() {
     bool check = login(username, password);
-    check = true; //ToDo: remove this later;
     statusMessage = SUCCESS; //ToDo: remove this later;
     if (check) {
         user->Login(username);

@@ -50,7 +50,7 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                     } else if (strncasecmp(bufferStr.c_str(), "del", 3) == 0) {
                         command = new DeleteMessage(MESSAGEDIR, user);
                     } else if (strncasecmp(bufferStr.c_str(), "help", 4) == 0 || strncasecmp(bufferStr.c_str(), "?", 1) == 0) {
-                        //ToDo: add help-loggedin command here :D
+                        command = new help(MESSAGEDIR, user);
                     }
                     else{
                         commandMatched = false;
@@ -58,7 +58,7 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                     }
                 }else{//Commands user can Access if not timed out and not logged in:
                     if (strncasecmp(bufferStr.c_str(), "help", 4) == 0 || strncasecmp(bufferStr.c_str(), "?", 1) == 0) {
-                        //ToDo: add help-loggedout command here :D
+                        command = new help(MESSAGEDIR, user);
                     }else if (strncasecmp(bufferStr.c_str(), "login", 5) == 0) {
                         command = new LdapLogin(MESSAGEDIR, user);
                     }
@@ -69,7 +69,7 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                 }
             }else{ //Commands user can Access if user is timed out:
                 if (strncasecmp(bufferStr.c_str(), "help", 4) == 0 || strncasecmp(bufferStr.c_str(), "?", 1) == 0) {
-                    //ToDo: add help-timeout command here :D
+                    command = new help(MESSAGEDIR, user);
                 }
                 else{
                     commandMatched = false;
