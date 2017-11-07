@@ -277,18 +277,13 @@ bool ClientHandler::sendFile(int sock, string * path) {
 
     std::vector<char> fileBytes;
     fileBytes.assign( (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()) );
-    char* buf = new char[fileBytes.size()];
+    auto* buf = new char[fileBytes.size()];
     copy(fileBytes.begin(), fileBytes.end(), buf);
-    if(fileBytes.size() == 0){
+    if(fileBytes.empty()){
         mysend(sock, (char*)string("corrupted").c_str(), string("corrupted").length()+1);
         return false;
     }
     mysend(sock, buf, fileBytes.size());
-
-
-#
-
-
 
     file.close();
     delete[] buf;
