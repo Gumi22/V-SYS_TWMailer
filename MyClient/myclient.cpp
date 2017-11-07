@@ -80,7 +80,7 @@ int main (int argc, char **argv) {
             }
             else if(strncasecmp(bufferStr.c_str(), "send_me_this_file: \n", 20) == 0){
                 std::string fileName = bufferStr.substr(20);
-
+                bufferStr = "";
                 //file öffnen und Inhalte kopieren :D
                 std::ifstream file(fileName, std::ios::binary);
                 std::vector<char> fileBytes;
@@ -98,7 +98,7 @@ int main (int argc, char **argv) {
             else if(strncasecmp(bufferStr.c_str(), "save_this_file: \n", 17) == 0){
                 std::string fileAndPath = bufferStr.substr(17);
                 std::string fileName = fileAndPath.substr(fileAndPath.find_last_of(" as ")+1); //only need fileName
-
+                bufferStr = "";
                 char** data = new char*;
                 mysend(create_socket, &bufferStr); //send confirmation
                 unsigned long i = myrecv(create_socket, data);

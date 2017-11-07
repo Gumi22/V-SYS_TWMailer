@@ -36,7 +36,7 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
         size = myrecv(sock, &bufferStr);
 
         if (size > 0) {
-            cout << "Command received: <" << bufferStr.substr(0,bufferStr.find_last_of('\n')) << "> from user" << user->getUsername() << endl;
+            cout << "Command <" << bufferStr.substr(0,bufferStr.find_last_of('\n')) << "> received from " << (user->isLoggedIn()? "user <" + user->getUsername() + ">": "anonymous user") << endl;
             commandMatched = true; //we expect a real command, so reset it to true every command call
 
             if(!user->isTimedOut()){//Commands user can Access if not timed out:
