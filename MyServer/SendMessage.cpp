@@ -54,24 +54,27 @@ string SendMessage::execute() {
     ///close the file
     mail.close();
 
-    DIR* test2 = opendir(path_to_attachment_dir.c_str());
-    if(test2 == nullptr){
-        mkdir(path_to_attachment_dir.c_str(), 0777);
-    }
-    else{
-        closedir(test);
+    if(dataLength > 0){
+        DIR* test2 = opendir(path_to_attachment_dir.c_str());
+        if(test2 == nullptr){
+            mkdir(path_to_attachment_dir.c_str(), 0777);
+        }
+        else{
+            closedir(test2);
+        }
+
+        ///open the file
+        fstream am;
+        am.open(path_to_attachment, fstream::out | std::ios::binary);
+
+        ///write all information into the attachment file.
+        std::cout << dataLength<<endl;
+        std::cout << "data:" << data <<endl;
+        am.write(*data, dataLength);
+        ///close the file
+        am.close();
     }
 
-    ///open the file
-    fstream am;
-    am.open(path_to_attachment, fstream::out | std::ios::binary);
-
-    ///write all information into the attachment file.
-    std::cout << dataLength<<endl;
-    std::cout << "data:" << data <<endl;
-    am.write(*data, dataLength);
-    ///close the file
-    am.close();
 
     statusMessage = SUCCESS;
     return "Message sent!\n";
@@ -137,7 +140,7 @@ bool SendMessage::fillMe(string message) {
         index = 1;
         return false;
     }else{
-        ///if something went wront in the steps above - return false and give the client the information about invalid input.
+        ///if something went wrong in the steps above - return false and give the client the information about invalid input.
         statusMessage = "Invalid Input - Operation cancelled!";
         index = 1;
         return false;

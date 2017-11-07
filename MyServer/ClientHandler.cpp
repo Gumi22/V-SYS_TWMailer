@@ -102,13 +102,22 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                         if(strncasecmp(confirmation.c_str(), "send_me_this_file: \n", 20) == 0){ //If I sent filerequest use different read
 
                             unsigned long sizeOfData = myrecv(sock, data);
-                            cout << "4-" << endl;
-                            //cout << string(*data);
-                            cout << "5-" << endl;
                             command->setData(data, sizeOfData);
                             bufferStr = "Message: ";
                             confirmation = "O";
-                            //command->fillMe("");
+                        }
+                        else if(strncasecmp(confirmation.c_str(), "save_this_file: \n", 17) == 0){ //If I sent filesaverequest use different send
+                            cout << 1 << endl;
+                            myrecv(sock, &bufferStr); //get confirmation
+                            cout << 2 << endl;
+                            if(sendFile(sock, &confirmation) != 0); //send the file in binary
+                            {
+                                cout << 3 << endl;
+                                myrecv(sock, &bufferStr); //get confirmation
+                            }
+                            cout << 4 << endl;
+                            bufferStr = "Message: ";
+                            confirmation = "O";
                         }
                         else{
                             myrecv(sock, &bufferStr); //Use other receive
@@ -243,11 +252,53 @@ unsigned long ClientHandler::myrecv(int socket, char **data) {
     if(*data != nullptr){
         delete[] *data;
     }
-    cout << "1" << endl;
     *data = new char[totalReceived];
-    cout << "2" << endl;
     copy(byteBuffer.begin(), byteBuffer.end(), *data);
-    cout << "3" << endl;
 
     return totalReceived;
+}
+
+unsigned long ClientHandler::mysend(int socket,char * data, unsigned long size) {
+
+    unsigned long sizeSent = 0;
+    char buf [BUF];
+    //Send size of file first:
+    send(socket, std::to_string(size).c_str(), std::to_string(size).length(), 0);
+    //receive confirmation
+    recv(socket, buf , BUF, 0);
+
+    while(sizeSent < size){
+        sizeSent += send(socket, &data[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //not sure if calculation is right ^^ -> seems ok
+        std::cout << sizeSent << std::endl;
+
+        //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
+        if(sizeSent < size){
+            if(recv(socket, buf , BUF, 0) <= 0){
+                return 0;
+            }
+        }
+    }
+
+    return sizeSent;
+}
+
+bool ClientHandler::sendFile(int sock, string * path) {
+    std::string fileName = path->substr(17);
+    cout << fileName << endl;
+    //file öffnen und Inhalte kopieren :D
+    std::ifstream file(fileName, std::ios::binary);
+    std::vector<char> fileBytes;
+    fileBytes.assign( (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()) );
+    char* buf = new char[fileBytes.size()];
+    copy(fileBytes.begin(), fileBytes.end(), buf);
+    if(fileBytes.size() == 0){
+        mysend(sock, (char*)string("corrupted").c_str(), string("corrupted").length()+1);
+        return false;
+    }
+    mysend(sock, buf, fileBytes.size());
+
+    file.close();
+    delete[] buf;
+
+    return true;
 }
