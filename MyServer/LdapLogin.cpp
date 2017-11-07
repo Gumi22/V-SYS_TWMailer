@@ -99,7 +99,6 @@ bool LdapLogin::login(std::string username, char* password) {
         return false;
     }
 
-    cout << ldap_count_entries(ld, result)  << endl;
     if(ldap_count_entries(ld,result) < 1){
         statusMessage = FAILURE;
         free(attribs[0]);
@@ -130,7 +129,6 @@ bool LdapLogin::login(std::string username, char* password) {
 
 string LdapLogin::execute() {
     bool check = login(username, password);
-    check = true; //ToDo: remove this later;
     statusMessage = SUCCESS; //ToDo: remove this later;
     if (check) {
         user->Login(username);
