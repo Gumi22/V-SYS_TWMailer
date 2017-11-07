@@ -10,7 +10,7 @@
 #include <fstream>
 #include "User.h"
 
-#define TIMEOUT_TIME_MS 100000
+#define TIMEOUT_TIME_MS 10000
 #define IP_TIMEOUT_FILE "IPTimeouts.txt"
 
 class TimeOutManager {
