@@ -22,7 +22,7 @@ bool ReadMessage::fillMe(string parameter) {
 
 
             string result = peek();
-            string line = "";
+            string line;
             stringstream ss(result);
             getline(ss, line);
             getline(ss, line);
@@ -30,7 +30,7 @@ bool ReadMessage::fillMe(string parameter) {
             result = line.substr(line.find("attachment: ")+12); //get everything after "attachment: "
 
             statusMessage = string("save_this_file: \n");
-            if(result != ""){
+            if(!result.empty()){
                 statusMessage += "messages/" + user->getUsername() + "/attachments/" + result ;
                 cout << statusMessage;
             }
@@ -55,7 +55,7 @@ string ReadMessage::execute() {
     ParameterCount = 0;
     string result = peek();
 
-    if(result == ""){
+    if(!result.empty()){
         statusMessage = FAILURE;
         result = "No matching file found.\n";
     }
@@ -66,7 +66,7 @@ string ReadMessage::execute() {
 }
 
 string ReadMessage::peek() {
-    string result = "";
+    string result;
     int count = 0;
     string dir = string(MESSAGEDIR) + "/" + user->getUsername();
 

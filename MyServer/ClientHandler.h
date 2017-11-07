@@ -25,7 +25,6 @@ class ClientHandler {
 
 private:
     const char *MESSAGEDIR;
-    const char SUCCESS[4] = "OK\n";
     const char FAILURE[5] = "ERR\n";
     const char EXECUTEPENDING[4] = "EP\n";
 

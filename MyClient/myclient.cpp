@@ -12,9 +12,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <iostream>
 
 #define BUF 1024
 
@@ -69,7 +66,7 @@ int main (int argc, char **argv) {
                 //print received instructions (status message)
                 std::cout << bufferStr << std::endl;
 
-                termios tty;
+                termios tty = { 0 };
                 tcgetattr(STDIN_FILENO, &tty);
                 tty.c_lflag &= ~ECHO;
                 tcsetattr(STDIN_FILENO, TCSANOW, &tty);
@@ -87,7 +84,7 @@ int main (int argc, char **argv) {
                 std::ifstream file(fileName, std::ios::binary);
                 std::vector<char> fileBytes;
                 fileBytes.assign( (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()) );
-                char* buf = new char[fileBytes.size()];
+                auto* buf = new char[fileBytes.size()];
                 copy(fileBytes.begin(), fileBytes.end(), buf);
 
                 mysend(create_socket, buf, fileBytes.size()); //send file
@@ -101,7 +98,7 @@ int main (int argc, char **argv) {
                 std::string fileAndPath = bufferStr.substr(17);
                 std::string fileName = fileAndPath.substr(fileAndPath.find_last_of(" as ")+1); //only need fileName
                 bufferStr = "";
-                char** data = new char*;
+                auto** data = new char*;
                 mysend(create_socket, &bufferStr); //send confirmation
                 unsigned long i = myrecv(create_socket, data);
                 if(i > 0) //get data if there was any
@@ -279,14 +276,14 @@ bool connectSocket(int &create_socket, char* serverAddress, u_int16_t port){
 
     memset(&address,0,sizeof(address));
     address.sin_family = AF_INET;
-    address.sin_port = htons (port);
+    address.sin_port = htons(port);
     inet_aton (serverAddress, &address.sin_addr);
 
     if (connect ( create_socket, (struct sockaddr *) &address, sizeof (address)) == 0)
     {
         std::cout << "Connection with server (" << inet_ntoa(address.sin_addr) << ") established!" << std::endl;
         //expect a response;
-        std::string buf = "";
+        std::string buf;
         myrecv(create_socket, &buf);
         std::cout << buf;
     }
