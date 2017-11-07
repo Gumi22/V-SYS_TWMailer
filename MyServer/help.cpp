@@ -5,6 +5,7 @@
 #include "help.h"
 
 help::help(const char * directory, User* user) : ServerOperation(directory, user) {
+    ///just go threw the steps and send the help to the client.
     statusMessage = EXECUTEPENDING;
 
 }

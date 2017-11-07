@@ -1,5 +1,5 @@
 NAME := MyServer
-FLAGS := -ggdb -g -O -Wall -std=c++11 -pthread -DLDAP_DEPRECATED
+FLAGS := -ggdb -g -O -Werror -Wall -std=c++11 -pthread -DLDAP_DEPRECATED
 LIBFLAGS := /usr/lib/x86_64-linux-gnu/libboost_filesystem.so /usr/lib/x86_64-linux-gnu/libldap.so /usr/lib/x86_64-linux-gnu/liblber.so
 CC := g++
 

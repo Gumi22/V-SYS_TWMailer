@@ -27,13 +27,6 @@ bool User::isLoggedIn() {
 }
 
 /**
- * resets username and password to default and loggedIn to false
- */
-void User::Logout() {
-    setToDefault();
-}
-
-/**
  * sets User parameters to default
  */
 void User::setToDefault() {
@@ -51,6 +44,7 @@ string User::getIPAddressAndPort() {
 void User::incrementLoginTries() {
     loginTries++;
     if(loginTries >= 3){
+        ///get reference of the singleton object-instance and execute the threadsafe functions
         auto & instance = TimeOutManager::getSingleton();
         instance.timeOut(this);
     }

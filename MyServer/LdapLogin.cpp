@@ -68,22 +68,20 @@ bool LdapLogin::login(std::string username, char* password) {
 
     attribs[0] = strdup("uid");        /* return uid and cn of entries */
     attribs[1] = strdup("cn");
-    attribs[2] = NULL;        /* array must be NULL terminated */
+    attribs[2] = nullptr;        /* array must be NULL terminated */
 
 
     /* setup LDAP connection */
-    if ((ld = ldap_init(LDAP_HOST, LDAP_PORT)) == NULL) {
-        statusMessage = FAILURE;
+    if ((ld = ldap_init(LDAP_HOST, LDAP_PORT)) == nullptr) {
         free(attribs[0]);
         free(attribs[1]);
         return false;
     }
 
     /* anonymous bind */
-    rc = ldap_simple_bind_s(ld, NULL, NULL);
+    rc = ldap_simple_bind_s(ld, nullptr, nullptr);
 
     if (rc != LDAP_SUCCESS) {
-        statusMessage = FAILURE;
         free(attribs[0]);
         free(attribs[1]);
         return false;
@@ -93,14 +91,12 @@ bool LdapLogin::login(std::string username, char* password) {
     rc = ldap_search_s(ld, SEARCHBASE, SCOPE, FILTER, attribs, 0, &result);
 
     if (rc != LDAP_SUCCESS) {
-        statusMessage = FAILURE;
         free(attribs[0]);
         free(attribs[1]);
         return false;
     }
 
     if(ldap_count_entries(ld,result) < 1){
-        statusMessage = FAILURE;
         free(attribs[0]);
         free(attribs[1]);
         return false;
@@ -112,7 +108,6 @@ bool LdapLogin::login(std::string username, char* password) {
     rc = ldap_simple_bind_s(ld, dn, password);
 
     if(rc != LDAP_SUCCESS) {
-        statusMessage = FAILURE;
         free(attribs[0]);
         free(attribs[1]);
         return false;
@@ -123,17 +118,17 @@ bool LdapLogin::login(std::string username, char* password) {
     free(attribs[1]);
 
     ldap_unbind(ld);
-    statusMessage = SUCCESS;
     return true;
 }
 
 string LdapLogin::execute() {
     bool check = login(username, password);
-    statusMessage = SUCCESS; //ToDo: remove this later;
     if (check) {
+        statusMessage = SUCCESS;
         user->Login(username);
         return "Login successful for user: " + username + " from address: " + user->getIPAddressAndPort() + "\n";
     } else {
+        statusMessage = FAILURE;
         user->incrementLoginTries();
         return "Login failed for user: " + username + " from address: " + user->getIPAddressAndPort() + "\n";
     }

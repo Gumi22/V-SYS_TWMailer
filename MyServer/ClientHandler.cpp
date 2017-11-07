@@ -141,7 +141,6 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
                     string status = FAILURE;
                     mysend(sock, &status);
                 }
-                char message[] = "placeholder";
                 myrecv(sock, &bufferStr); //always wait for confirmation
                 mysend(sock, &commandResult);
             }
@@ -174,7 +173,6 @@ unsigned long ClientHandler::mysend(int socket, const string * data) {
 
     while(sizeSent < size){
         sizeSent += send(socket, &buffer[sizeSent], (BUF < size - sizeSent) ? BUF : size - sizeSent, 0); //not sure if calculation is right ^^ -> seems ok
-        //std::cout << "sent: " << sizeSent << " from " << size << std::endl;
         //receive confirmation (if not all was sent already) and break if something went wrong with confirmation
         if(sizeSent < size){
             if(recv(socket, buf , BUF, 0) <= 0){
@@ -201,7 +199,6 @@ unsigned long ClientHandler::myrecv(int socket, string * data) {
         if (sizeReceived > 0) {
             totalReceived += sizeReceived;
             *data += buffer;
-            //std::cout << "received: " << totalReceived << std::endl;
             if(buffer[sizeReceived-1] == '\0'){ //end of message :D
                 endOfStringFound = true;
             }
@@ -247,7 +244,7 @@ unsigned long ClientHandler::myrecv(int socket, char **data) {
             cout << "Client closed remote socket, or recv failure" << endl;
             return 0;
         }
-    }while(byteBuffer.size() < size);
+    }while((unsigned)byteBuffer.size() < size);
     //copy received data to our array
     if(*data != nullptr){
         delete[] *data;

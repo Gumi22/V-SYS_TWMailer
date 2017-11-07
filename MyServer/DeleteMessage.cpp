@@ -13,7 +13,6 @@ DeleteMessage::DeleteMessage(const char * directory, User* usr) : ServerOperatio
 
 bool DeleteMessage::fillMe(string message) {
     //fill the needed parameter
-
     switch(parameter_count){
         case 0:
             ///check if second input is valid, if yes save the messagenumber.
@@ -56,10 +55,10 @@ string DeleteMessage::execute() {
     while ((userDirEntry = readdir(userDir)) != nullptr && count <= chosen_message) {
         ///check if the file is a regular type
         if (userDirEntry->d_type == DT_REG) {
-            //count as countable file
+            ///count as countable file
             count++;
             if (count == chosen_message) {
-                //deleting if reached correct file
+                ///deleting if reached correct file
                 dir += "/" + string(userDirEntry->d_name);
                 delete_result = remove(dir.c_str());
                 ///check if remove function returned 0 for success or other code for failure

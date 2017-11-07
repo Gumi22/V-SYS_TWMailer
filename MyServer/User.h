@@ -32,7 +32,6 @@ public:
     string getIPAddressAndPort();
     string getIPAddress();
     void incrementLoginTries();
-    void Logout();
     bool isTimedOut();
 
 };

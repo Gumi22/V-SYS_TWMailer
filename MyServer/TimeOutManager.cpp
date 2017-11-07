@@ -7,7 +7,6 @@
 
 void TimeOutManager::timeOut(User * user) {
     std::lock_guard<mutex> locker(fileMutex); //ROII
-    //perform operations here :D
     ///save the actual timestamp in ms
     std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >(
             std::chrono::system_clock::now().time_since_epoch()
