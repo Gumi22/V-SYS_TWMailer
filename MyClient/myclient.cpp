@@ -240,7 +240,7 @@ unsigned long myrecv(int socket, char **data) {
             for(int i = 0; i < sizeReceived; i++){
                 byteBuffer.push_back(buffer[i]);
             }
-            if(byteBuffer.size() < size){
+            if((unsigned)byteBuffer.size() < size){
                 send(socket, "\0", BUF, 0); //send confirmation
             }
         }
@@ -250,7 +250,7 @@ unsigned long myrecv(int socket, char **data) {
             std::cout << "Client closed remote socket, or recv failure" << std::endl;
             return 0;
         }
-    }while(byteBuffer.size() < size);
+    }while((unsigned)byteBuffer.size() < size);
     //copy received data to our array
     if(*data != nullptr){
         delete[] *data;

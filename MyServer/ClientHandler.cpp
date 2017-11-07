@@ -285,6 +285,11 @@ bool ClientHandler::sendFile(int sock, string * path) {
     }
     mysend(sock, buf, fileBytes.size());
 
+
+#
+
+
+
     file.close();
     delete[] buf;
 
