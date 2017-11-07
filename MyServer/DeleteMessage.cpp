@@ -3,6 +3,7 @@
 //
 
 
+#include <iostream>
 #include "DeleteMessage.h"
 
 DeleteMessage::DeleteMessage(const char * directory, User* usr) : ServerOperation(directory, usr) {
@@ -59,10 +60,30 @@ string DeleteMessage::execute() {
             count++;
             if (count == chosen_message) {
                 ///deleting if reached correct file
+                string userdir = dir;
                 dir += "/" + string(userDirEntry->d_name);
+
+
+
                 delete_result = remove(dir.c_str());
                 ///check if remove function returned 0 for success or other code for failure
                 if(delete_result == 0){
+
+                    string attachmentName = string(userDirEntry->d_name).substr(0, string(userDirEntry->d_name).find_last_of(".txt")-3);
+                    userdir.append("/attachments");
+                    std::cout << attachmentName << endl;
+                    std::cout << userdir << endl;
+
+                    DIR* attachmentDir = opendir(userdir.c_str()); //Open User Directory
+                    if(attachmentDir != nullptr){
+                        cout << string(userdir+attachmentName).c_str() << endl;
+                        userdir.append("/");
+                        remove(string(userdir+attachmentName).c_str());
+
+                        statusMessage = FAILURE;
+                        closedir(attachmentDir);
+                    }
+
                     statusMessage = SUCCESS;
                 }else{
                     statusMessage = FAILURE;

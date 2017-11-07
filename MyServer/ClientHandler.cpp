@@ -28,7 +28,7 @@ void ClientHandler::clientLoop(int sock, string clientIP, string clientPort) {
     string commandResult;
 
 
-    string temp = "Welcome to myserver, Please enter your command:\n";
+    string temp = "Welcome to Server Synergy of Doom, Please enter your command:\n";
     mysend(sock, &temp);
 
     do {
@@ -216,7 +216,7 @@ unsigned long ClientHandler::myrecv(int socket, char **data) {
     send(socket, "\0", BUF, 0); //send confirmation
 
 
-    do{
+    while((unsigned)byteBuffer.size() < size){
         //receive next line
         sizeReceived = recv(socket, buffer, BUF, 0);
         if (sizeReceived > 0) {
@@ -234,7 +234,7 @@ unsigned long ClientHandler::myrecv(int socket, char **data) {
             cout << "Client closed remote socket, or recv failure" << endl;
             return 0;
         }
-    }while((unsigned)byteBuffer.size() < size);
+    }
     //copy received data to our array
     if(*data != nullptr){
         delete[] *data;

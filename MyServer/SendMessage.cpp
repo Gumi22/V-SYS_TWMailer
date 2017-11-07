@@ -25,8 +25,8 @@ string SendMessage::execute() {
     string path_of_Directory = string(MESSAGEDIR) + '/' + receiver;
     ///build a unique path to the mail txt file
     boost::uuids::uuid new_Filename = gen();
-    std::string filename = boost::lexical_cast<std::string> (new_Filename);
-    string path_to_file = string(MESSAGEDIR) + '/' + receiver + '/' + to_string(ms.count()) + filename +  ".txt";
+    std::string filename = to_string(ms.count()) + boost::lexical_cast<std::string> (new_Filename);
+    string path_to_file = string(MESSAGEDIR) + '/' + receiver + '/' +  filename +  ".txt";
     string path_to_attachment_dir = string(MESSAGEDIR) + '/' + receiver + "/attachments"; //ToDo: make that a define
     string path_to_attachment = path_to_attachment_dir + '/' + filename;
     ///convert all strings into char * for functions opendir, mkdir, fprintf
@@ -48,7 +48,10 @@ string SendMessage::execute() {
     ///write all information into the mail-txt file.
     mail << "Sender: " << user->getUsername() << endl;
     mail << "Subject: " << subject;
-    mail << "attachment: " << filename << " as " << attachmentFileName << endl;
+
+    mail << "attachment: ";
+    if(dataLength != 0){mail  << filename << " as " << attachmentFileName;}
+    mail << endl;
     mail << message_final;
 
     ///close the file

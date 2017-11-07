@@ -62,11 +62,13 @@ int main (int argc, char **argv) {
         myrecv(create_socket, &bufferStr);
 
         //start parameter sending
-        while (strcmp (bufferStr.c_str(), SUCCESS) != 0 && strcmp (bufferStr.c_str(), FAILURE) != 0){ //As long as the end wasn't reached (natural or error)
-            //print received instructions (status message)
-            std::cout << bufferStr << std::endl;
+        while (strcmp (bufferStr.c_str(), SUCCESS) != 0 && strcmp (bufferStr.c_str(), FAILURE) != 0 && strcmp (bufferStr.c_str(), "quit\n") != 0){ //As long as the end wasn't reached (natural or error)
+
             //get user input and send
             if(strncasecmp(bufferStr.c_str(), "password:", 9) == 0){
+                //print received instructions (status message)
+                std::cout << bufferStr << std::endl;
+
                 termios tty;
                 tcgetattr(STDIN_FILENO, &tty);
                 tty.c_lflag &= ~ECHO;
@@ -117,6 +119,9 @@ int main (int argc, char **argv) {
                 bufferStr = "placeholder";
             }
             else{
+                //print received instructions (status message)
+                std::cout << bufferStr << std::endl;
+
                 getline(std::cin, bufferStr);
                 bufferStr.append("\n");
             }
@@ -212,6 +217,7 @@ unsigned long myrecv(int socket, std::string * data) {
             }
         } else{
             std::cout << "Server closed remote socket, or recv failure!" << std::endl;
+            *data = "quit\n";
             return 0;
         }
     }while(!endOfStringFound);
@@ -232,7 +238,7 @@ unsigned long myrecv(int socket, char **data) {
     send(socket, "\0", BUF, 0); //send confirmation
 
 
-    do{
+    while(byteBuffer.size() < size){
         //receive next line
         sizeReceived = recv(socket, buffer, BUF, 0);
         if (sizeReceived > 0) {
@@ -250,7 +256,7 @@ unsigned long myrecv(int socket, char **data) {
             std::cout << "Client closed remote socket, or recv failure" << std::endl;
             return 0;
         }
-    }while(byteBuffer.size() < size);
+    }
     //copy received data to our array
     if(*data != nullptr){
         delete[] *data;
