@@ -238,7 +238,7 @@ unsigned long myrecv(int socket, char **data) {
     send(socket, "\0", BUF, 0); //send confirmation
 
 
-    while(byteBuffer.size() < size){
+    while((unsigned)byteBuffer.size() < size){
         //receive next line
         sizeReceived = recv(socket, buffer, BUF, 0);
         if (sizeReceived > 0) {
@@ -246,7 +246,7 @@ unsigned long myrecv(int socket, char **data) {
             for(int i = 0; i < sizeReceived; i++){
                 byteBuffer.push_back(buffer[i]);
             }
-            if(byteBuffer.size() < size){
+            if((unsigned)byteBuffer.size() < size){
                 send(socket, "\0", BUF, 0); //send confirmation
             }
         }
