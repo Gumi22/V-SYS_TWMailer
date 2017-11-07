@@ -25,10 +25,10 @@ void TimeOutManager::timeOut(User * user) {
 
 }
 
-bool TimeOutManager::isTimedOut(User * user) {
+bool TimeOutManager::isTimedOut(User *user) {
     std::lock_guard<mutex> locker(mapMutex); //ROII
     //Look if in list
-    std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >(
+    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()
     );
     ///save the timestamp as a long datatype
@@ -36,18 +36,18 @@ bool TimeOutManager::isTimedOut(User * user) {
     ///Search for the correct IP Address in the MAP of TimeOuts
     auto parameter = timeOuts.find(user->getIPAddress());
     ///If you find one Value, check if Timeout is over "60 sec" in this case
-    if(parameter != timeOuts.end()){
-        if(Timestamp - parameter->second >= TIMEOUT_TIME_MS){
+    if (parameter != timeOuts.end()) {
+        if (Timestamp - parameter->second >= TIMEOUT_TIME_MS) {
             timeOuts.erase(user->getIPAddress());
             ///Call the function update File, to keep the File up to date
             updateFile();
             return false;
-        }else{
+        } else {
             return true;
         }
-    }else{
-	return false;
-}
+    } else {
+        return false;
+    }
 }
 
 void TimeOutManager::updateFile() {
@@ -103,5 +103,3 @@ void TimeOutManager::addFileToMap() {
         infile.close();
     }
 }
-
-

@@ -108,23 +108,20 @@ bool SendMessage::fillMe(string message) {
                 return false;
             case 3:
                 ///check if the 3rd input is correct, has to be the filename and not longer then 250 characters
-                if(message.length() <= 255){
+                if (message.length() <= 255 && message != "\n") {
                     attachmentFileName = message;
-                    attachmentFileName.pop_back(); // erase \n at end
-                    if(message != "\n"){ //if filename was given
-                        statusMessage = "send_me_this_file: \n" + attachmentFileName;
-                    }
-                    else{
-                        statusMessage = "Message-Line: ";
-                        index ++; //no need for reading file
-                    }
-                    index ++;
-
-                    return true;
+                    attachmentFileName.pop_back(); // erase \n at end //if filename was given
+                    statusMessage = "send_me_this_file: \n" + attachmentFileName;
+                    index++;
+                } else if (message == "\n") {
+                    statusMessage = "Message-Line: ";
+                    index += 2; //no need for reading file
+                } else {
+                    statusMessage = "Invalid filename - Max 255 Characters!";
+                    index = 1;
+                    return false;
                 }
-                statusMessage = "Invalid filename - Max 255 Characters!";
-                index = 1;
-                return false;
+                return true;
             case 4:
                 index ++;
                 statusMessage = "Message-Line: ";
@@ -136,8 +133,8 @@ bool SendMessage::fillMe(string message) {
         }
     }/// check if the index is 4 and all steps are done succesfully - if yes set the server status to "ready of execute" and return true
     else if(index == 5){
+        index = 1; //reset index for later send commands
         statusMessage = EXECUTEPENDING;
-        index = 1;
         return false;
     }else{
         ///if something went wrong in the steps above - return false and give the client the information about invalid input.
@@ -146,5 +143,3 @@ bool SendMessage::fillMe(string message) {
         return false;
     }
 }
-
-

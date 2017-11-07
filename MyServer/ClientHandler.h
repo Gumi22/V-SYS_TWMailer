@@ -17,6 +17,7 @@
 #include "DeleteMessage.h"
 #include "Quit.h"
 #include "User.h"
+#include "help.h"
 
 #define BUF 1024
 
